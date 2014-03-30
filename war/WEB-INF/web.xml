@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns="http://java.sun.com/xml/ns/javaee"
+xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
+	<servlet>
+		<servlet-name>Ece1779lol</servlet-name>
+		<servlet-class>com.ece1779lol.app.Ece1779lolServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Ece1779lol</servlet-name>
+		<url-pattern>/ece1779lol</url-pattern>
+	</servlet-mapping>
+
+
+	<servlet>
+		<servlet-name>HelloWorld</servlet-name>
+		<servlet-class>ece1779.appengine.HelloWorld</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>HelloWorld</servlet-name>
+		<url-pattern>/helloworld</url-pattern>
+	</servlet-mapping>
+	<servlet>   
+		<servlet-name>Clock1</servlet-name>
+		<servlet-class>ece1779.appengine.Clock1</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Clock1</servlet-name>
+		<url-pattern>/clock1</url-pattern>
+	</servlet-mapping>
+	<servlet>   
+		<servlet-name>Clock2</servlet-name>
+		<servlet-class>ece1779.appengine.Clock2</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Clock2</servlet-name>
+		<url-pattern>/clock2</url-pattern>
+	</servlet-mapping>
+ 	<servlet>   
+		<servlet-name>Clock3</servlet-name>
+		<servlet-class>ece1779.appengine.Clock3</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Clock3</servlet-name>
+		<url-pattern>/clock3</url-pattern>
+	</servlet-mapping>
+	<servlet>
+	    <servlet-name>prefs</servlet-name>
+	    <servlet-class>ece1779.appengine.PrefsServlet</servlet-class>
+	</servlet>
+  	<servlet-mapping>
+    		<servlet-name>prefs</servlet-name>
+    		<url-pattern>/prefs</url-pattern>
+  	</servlet-mapping>
+
+	<servlet>
+	    <servlet-name>onlyadmin</servlet-name>
+	    <servlet-class>ece1779.appengine.OnlyAdmin</servlet-class>
+	</servlet>
+  	<servlet-mapping>
+    		<servlet-name>onlyadmin</servlet-name>
+    		<url-pattern>/onlyadmin</url-pattern>
+  	</servlet-mapping>
+	
+
+ 	<servlet>   
+		<servlet-name>Memcache</servlet-name>
+		<servlet-class>ece1779.appengine.memcache.ClockServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Memcache</servlet-name>
+		<url-pattern>/memcache</url-pattern>
+	</servlet-mapping>
+	<servlet>
+	    <servlet-name>Memcacheprefs</servlet-name>
+	    <servlet-class>ece1779.appengine.memcache.PrefsServlet</servlet-class>
+	</servlet>
+  	<servlet-mapping>
+    		<servlet-name>Memcacheprefs</servlet-name>
+    		<url-pattern>/memcacheprefs</url-pattern>
+  	</servlet-mapping>
+
+	<servlet>
+	    <servlet-name>jpaQueriesServlet</servlet-name>
+	    <servlet-class>ece1779.appengine.datastore.JPAQueriesServlet</servlet-class>
+	</servlet>
+  	<servlet-mapping>
+    		<servlet-name>jpaQueriesServlet</servlet-name>
+    		<url-pattern>/jpaquery</url-pattern>
+  	</servlet-mapping>
+
+	<servlet>
+	    <servlet-name>jpaTransactionServlet</servlet-name>
+	    <servlet-class>ece1779.appengine.datastore.JPATransactionsServlet</servlet-class>
+	</servlet>
+  	<servlet-mapping>
+    		<servlet-name>jpaTransactionServlet</servlet-name>
+    		<url-pattern>/jpatransaction</url-pattern>
+  	</servlet-mapping>
+
+  	<servlet>
+	    <servlet-name>dsEntitiesServlet</servlet-name>
+	    <servlet-class>ece1779.appengine.datastore.EntitiesServlet</servlet-class>
+	</servlet>
+  	<servlet-mapping>
+    		<servlet-name>dsEntitiesServlet</servlet-name>
+    		<url-pattern>/dsentities</url-pattern>
+  	</servlet-mapping>
+  	
+  	<servlet>
+	    <servlet-name>dsQueriesServlet</servlet-name>
+	    <servlet-class>ece1779.appengine.datastore.QueriesServlet</servlet-class>
+	</servlet>
+  	<servlet-mapping>
+    		<servlet-name>dsQueriesServlet</servlet-name>
+    		<url-pattern>/dsqueries</url-pattern>
+  	</servlet-mapping>
+  	
+  		
+  	<servlet>
+	    <servlet-name>dsTransactionServlet</servlet-name>
+	    <servlet-class>ece1779.appengine.datastore.TransactionsServlet</servlet-class>
+	</servlet>
+  	<servlet-mapping>
+    		<servlet-name>dsTransactionServlet</servlet-name>
+    		<url-pattern>/dstransaction</url-pattern>
+  	</servlet-mapping>
+  	
+  	
+	<servlet>
+    	<servlet-name>fileupload</servlet-name>
+    	<servlet-class>ece1779.appengine.fileupload.FileUploadServlet</servlet-class>
+  	</servlet>
+  	<servlet-mapping>
+   	 	<servlet-name>fileupload</servlet-name>
+    	<url-pattern>/FileUpload</url-pattern>
+  	</servlet-mapping>
+
+
+
+	<servlet>
+    	<servlet-name>taskenqueue</servlet-name>
+    	<servlet-class>ece1779.appengine.taskqueue.TaskEnqueueServlet</servlet-class>
+  	</servlet>
+  	<servlet-mapping>
+   	 	<servlet-name>taskenqueue</servlet-name>
+    	<url-pattern>/taskqueue</url-pattern>
+  	</servlet-mapping>
+
+  	<servlet>
+    	<servlet-name>defaulttask</servlet-name>
+    	<servlet-class>ece1779.appengine.taskqueue.TaskServlet</servlet-class>
+  	</servlet>
+  	<servlet-mapping>
+    	<servlet-name>defaulttask</servlet-name>
+    	<url-pattern>/_ah/queue/default</url-pattern>
+  	</servlet-mapping>
+
+  	<security-constraint>
+    	<web-resource-collection>
+      		<web-resource-name>defaulttaskurl</web-resource-name>
+      		<url-pattern>/_ah/queue/default</url-pattern>
+    	</web-resource-collection>
+    	<auth-constraint>
+      		<role-name>admin</role-name>
+    	</auth-constraint>
+  	</security-constraint>
+
+  	<servlet>
+	    <servlet-name>sendinvitationtask</servlet-name>
+	    <servlet-class>ece1779.appengine.taskqueue.TaskServlet</servlet-class>
+ 	</servlet>
+  	<servlet-mapping>
+    	<servlet-name>sendinvitationtask</servlet-name>
+    	<url-pattern>/send_invitation_task</url-pattern>
+  	</servlet-mapping>
+
+  	<security-constraint>
+    	<web-resource-collection>
+    	  	<web-resource-name>sendinvitationtaskurl</web-resource-name>
+      		<url-pattern>/send_invitation_task</url-pattern>
+    	</web-resource-collection>
+    	<auth-constraint>
+      		<role-name>admin</role-name>
+    	</auth-constraint>
+  	</security-constraint>
+
+
+  	<security-constraint>
+    		<web-resource-collection>
+      			<web-resource-name>prefs</web-resource-name>
+      			<url-pattern>/prefs</url-pattern>
+    		</web-resource-collection>
+    		<auth-constraint>
+      			<role-name>*</role-name>
+    		</auth-constraint>
+  	</security-constraint>
+	
+	<security-constraint>
+    		<web-resource-collection>
+      			<web-resource-name>onlyadmin</web-resource-name>
+      			<url-pattern>/onlyadmin</url-pattern>
+    		</web-resource-collection>
+    		<auth-constraint>
+      			<role-name>admin</role-name>
+    		</auth-constraint>
+  	</security-constraint>
+	
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
+ <servlet>
+  <servlet-name>SystemServiceServlet</servlet-name>
+  <servlet-class>com.google.api.server.spi.SystemServiceServlet</servlet-class>
+  <init-param>
+   <param-name>services</param-name>
+   <param-value/>
+  </init-param>
+ </servlet>
+ <servlet-mapping>
+  <servlet-name>SystemServiceServlet</servlet-name>
+  <url-pattern>/_ah/spi/*</url-pattern>
+ </servlet-mapping>
+</web-app>

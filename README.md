@@ -1,4 +1,10 @@
 ece1779lol
 ==========
 
-ece1779 LOL
+League of Legends tracking webapp using Google AppEngine
+
+Contributors
+============
+Abderahmane Allalou
+Ahmed Abdul-Salam
+Timothy Sham

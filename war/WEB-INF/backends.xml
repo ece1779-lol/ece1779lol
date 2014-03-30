@@ -1,0 +1,11 @@
+<backends>
+ <backend name="workers">
+   <class>B2</class>
+   <instances>2</instances>
+   <options>
+       <public>true</public>
+   </options>
+ </backend>
+</backends>
+
+
