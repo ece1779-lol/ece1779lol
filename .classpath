@@ -3,6 +3,8 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/AppEngineComplete/war/WEB-INF/lib/commons-fileupload-1.2.1.jar"/>
+	<classpathentry kind="lib" path="D:/git/ece1779lol/war/WEB-INF/lib/commons-fileupload-1.2.1.jar"/>
+	<classpathentry kind="lib" path="D:/git/ece1779lol/war/WEB-INF/lib/Riot-API-Java-Wrapper.jar"/>
+	<classpathentry kind="lib" path="D:/git/ece1779lol/war/WEB-INF/lib/JSONic.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>
