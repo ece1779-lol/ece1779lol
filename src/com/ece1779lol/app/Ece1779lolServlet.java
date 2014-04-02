@@ -23,7 +23,7 @@ public class Ece1779lolServlet extends HttpServlet {
 		
 		out.println("Hello, world");
 		
-		String apiKey = null;
+		String apiKey = "my key";
 		int numPerTenSeconds = 10;
 		int numPerTenMinutes = 500;
 		
@@ -31,15 +31,15 @@ public class Ece1779lolServlet extends HttpServlet {
 		RiotApi api = new RiotApi(apiKey);
 		
 		Region REGION = Region.NA;
-		Summoner me;
+		Summoner summoner;
 		try {
-			me = api.getSummoner(REGION, "TheEnigmaBlade");
-			out.println(me.getName()+" "+me.getSummonerLevel());
+			summoner = api.getSummoner(REGION, "hatakekakashi");
+			out.println(summoner.getName()+" "+summoner.getSummonerLevel());
 
-			List<Game> myMatchHistory = me.getMatchHistory();
+			List<Game> myMatchHistory = summoner.getMatchHistory();
 			for (Game game : myMatchHistory)
 			{
-				out.println(game.getTotalPlayerScore()+" "+game.getGoldLeft());
+				out.println(game.getGameId()+" "+game.isWin()+" "+game.getEnemyMinionsKilled()+" "+game.getLength()+" "+game.getTotalPlayerScore()+" "+game.getGoldLeft());
 			}
 			
 		} catch (RiotApiException e) {
