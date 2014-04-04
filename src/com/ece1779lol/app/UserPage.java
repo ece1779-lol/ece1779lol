@@ -15,7 +15,7 @@ import net.enigmablade.riotapi.types.*;
 
 
 @SuppressWarnings("serial")
-public class Ece1779lolServlet extends HttpServlet {
+public class UserPage extends HttpServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		resp.setContentType("text/plain");
@@ -23,12 +23,17 @@ public class Ece1779lolServlet extends HttpServlet {
 		
 		out.println("Hello, world");
 		
-		RiotApi client = (RiotApi)getServletContext().getAttribute("RiotClient");
+		String apiKey = "fc237e42-4071-4272-a723-c98bc3ddd7ef";
+		int numPerTenSeconds = 10;
+		int numPerTenMinutes = 500;
+		
+		
+		RiotApi api = new RiotApi(apiKey);
 		
 		Region REGION = Region.NA;
 		Summoner summoner;
 		try {
-			summoner = client.getSummoner(REGION, "hatakekakashi");
+			summoner = api.getSummoner(REGION, "hatakekakashi");
 			out.println(summoner.getName()+" "+summoner.getSummonerLevel());
 
 			List<Game> myMatchHistory = summoner.getMatchHistory();

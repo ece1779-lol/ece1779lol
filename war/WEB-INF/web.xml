@@ -4,6 +4,28 @@ xmlns="http://java.sun.com/xml/ns/javaee"
 xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
 http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
+  	<servlet>
+    	<servlet-name>Initialization</servlet-name>
+    	<servlet-class>com.ece1779lol.app.Initialization</servlet-class>
+  		<load-on-startup>1</load-on-startup>
+		
+		<!-- Replace with AWS key for your account -->
+		<init-param>
+			<param-name>RiotKey</param-name>
+			<param-value>mykey</param-value>
+		</init-param>
+		
+		<init-param>
+			<param-name>LimitPer10Sec</param-name>
+			<param-value>10</param-value>
+		</init-param>
+		
+		<init-param>
+			<param-name>LimitPer10Min</param-name>
+			<param-value>500</param-value>
+		</init-param>
+  	</servlet>
+	
 	<servlet>
 		<servlet-name>Ece1779lol</servlet-name>
 		<servlet-class>com.ece1779lol.app.Ece1779lolServlet</servlet-class>
