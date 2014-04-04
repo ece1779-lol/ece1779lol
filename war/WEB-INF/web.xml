@@ -27,14 +27,22 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
   	</servlet>
 	
 	<servlet>
-		<servlet-name>Ece1779lol</servlet-name>
-		<servlet-class>com.ece1779lol.app.Ece1779lolServlet</servlet-class>
+		<servlet-name>AddSummoner</servlet-name>
+		<servlet-class>com.ece1779lol.app.AddSummoner</servlet-class>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>Ece1779lol</servlet-name>
-		<url-pattern>/ece1779lol</url-pattern>
+		<servlet-name>AddSummoner</servlet-name>
+		<url-pattern>/addSummoner</url-pattern>
 	</servlet-mapping>
 
+	<servlet>
+		<servlet-name>UserPage</servlet-name>
+		<servlet-class>com.ece1779lol.app.UserPage</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>UserPage</servlet-name>
+		<url-pattern>/userPage</url-pattern>
+	</servlet-mapping>
 
 	<servlet>
 		<servlet-name>HelloWorld</servlet-name>

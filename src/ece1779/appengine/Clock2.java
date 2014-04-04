@@ -20,9 +20,7 @@ public class Clock2 extends HttpServlet {
 
         UserService userService = UserServiceFactory.getUserService();
         User user = userService.getCurrentUser();
-        
- 
-        
+
         String navBar;
         if (user != null) {
             navBar = "<p>Welcome, " + user.getNickname() + "! You can <a href=\"" +

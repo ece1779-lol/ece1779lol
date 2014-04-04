@@ -8,6 +8,10 @@ import java.util.Map;
 
 import javax.servlet.http.*;
 
+import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
+
 import net.enigmablade.riotapi.*;
 import net.enigmablade.riotapi.constants.*;
 import net.enigmablade.riotapi.exceptions.RiotApiException;
@@ -15,11 +19,14 @@ import net.enigmablade.riotapi.types.*;
 
 
 @SuppressWarnings("serial")
-public class Ece1779lolServlet extends HttpServlet {
+public class AddSummoner extends HttpServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-		resp.setContentType("text/plain");
+		resp.setContentType("text/html");
 		PrintWriter out = resp.getWriter();
+		
+        UserService userService = UserServiceFactory.getUserService();
+        User user = userService.getCurrentUser();
 		
 		out.println("Hello, world");
 		
@@ -38,6 +45,7 @@ public class Ece1779lolServlet extends HttpServlet {
 			}
 			
 		} catch (RiotApiException e) {
+			out.println("Hello, world");
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
