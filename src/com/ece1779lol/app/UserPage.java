@@ -20,31 +20,7 @@ public class UserPage extends HttpServlet {
 			throws IOException {
 		resp.setContentType("text/plain");
 		PrintWriter out = resp.getWriter();
-		
-		out.println("Hello, world");
-		
-		String apiKey = "fc237e42-4071-4272-a723-c98bc3ddd7ef";
-		int numPerTenSeconds = 10;
-		int numPerTenMinutes = 500;
-		
-		
-		RiotApi api = new RiotApi(apiKey);
-		
-		Region REGION = Region.NA;
-		Summoner summoner;
-		try {
-			summoner = api.getSummoner(REGION, "hatakekakashi");
-			out.println(summoner.getName()+" "+summoner.getSummonerLevel());
 
-			List<Game> myMatchHistory = summoner.getMatchHistory();
-			for (Game game : myMatchHistory)
-			{
-				out.println(game.getGameId()+" "+game.isWin()+" "+game.getEnemyMinionsKilled()+" "+game.getLength()+" "+game.getTotalPlayerScore()+" "+game.getGoldLeft());
-			}
-			
-		} catch (RiotApiException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		out.println("Hello, world");
 	}
 }
