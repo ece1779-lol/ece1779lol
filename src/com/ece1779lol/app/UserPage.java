@@ -38,7 +38,7 @@ public class UserPage extends HttpServlet {
                      userService.createLogoutURL("/") +
                      "\">sign out</a>.</p>";
         } else {
-            navBar = "<p>Welcome! <a href=\"" + userService.createLoginURL("/") +
+            navBar = "<p>Welcome! <a href=\"" + userService.createLoginURL("/userPage") +
                      "\">Sign in or register</a> to customize.</p>";
             out.println(navBar);
     		out.println("  </body>");
@@ -49,7 +49,7 @@ public class UserPage extends HttpServlet {
         
 		out.println(navBar);
 		out.println("</br>");
-		out.println("    <form action='/ece1779/servlet/AddSummoner' method='post'>");
+		out.println("    <form action='/addSummoner' method='post'>");
 		out.println("	 <p>Query a Summoner</p>");
 		out.println("	    Summoner Name <input type='text' name='summonerName'/><br />");
 		out.println("   	<input type='submit' value='Send'>");

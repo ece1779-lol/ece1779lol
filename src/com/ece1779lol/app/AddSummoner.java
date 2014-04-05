@@ -20,7 +20,7 @@ import net.enigmablade.riotapi.types.*;
 
 @SuppressWarnings("serial")
 public class AddSummoner extends HttpServlet {
-	public void doGet(HttpServletRequest req, HttpServletResponse resp)
+	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		resp.setContentType("text/html");
 		PrintWriter out = resp.getWriter();
@@ -28,14 +28,17 @@ public class AddSummoner extends HttpServlet {
         UserService userService = UserServiceFactory.getUserService();
         User user = userService.getCurrentUser();
 		
-		out.println("Hello, world");
+		out.println("Hello "+user.getNickname());
 		
 		RiotApi client = (RiotApi)getServletContext().getAttribute("RiotClient");
 		
 		Region REGION = Region.NA;
 		Summoner summoner;
+		
+		String summonerName = req.getParameter("summonerName");
+		
 		try {
-			summoner = client.getSummoner(REGION, "hatakekakashi");
+			summoner = client.getSummoner(REGION, summonerName);
 			out.println(summoner.getName()+" "+summoner.getSummonerLevel());
 
 			List<Game> myMatchHistory = summoner.getMatchHistory();
@@ -45,9 +48,7 @@ public class AddSummoner extends HttpServlet {
 			}
 			
 		} catch (RiotApiException e) {
-			out.println("Hello, world");
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			out.println(summonerName+" is invalid summoner ID");
 		}
 	}
 }
