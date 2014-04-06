@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.servlet.http.*;
 
@@ -21,6 +22,7 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
+import ece1779.appengine.datastore.TransactionsServlet;
 import net.enigmablade.riotapi.*;
 import net.enigmablade.riotapi.constants.*;
 import net.enigmablade.riotapi.exceptions.RiotApiException;
@@ -29,6 +31,8 @@ import net.enigmablade.riotapi.types.*;
 
 @SuppressWarnings("serial")
 public class AddSummoner extends HttpServlet {
+	
+	private static final Logger log = Logger.getLogger(AddSummoner.class.getName());
 	
 	private String favorite = "favorites";
 	
@@ -66,12 +70,12 @@ public class AddSummoner extends HttpServlet {
                     favorites = ds.get(boardKey);
 
                 } catch (EntityNotFoundException e) {
-                    favorites = new Entity("MessageBoard", keyname);
+                    favorites = new Entity("Favorites", keyname);
                     favorites.setProperty("count", 0L);
                     boardKey = ds.put(favorites);
                 }
 
-                Entity message = new Entity("Message", boardKey);  // set parent child relationship
+                Entity message = new Entity("favorite", boardKey);  // set parent child relationship
                 message.setProperty("summoner_name", summonerName);
                 message.setProperty("post_date", postDate);
                 ds.put(message);
@@ -81,7 +85,7 @@ public class AddSummoner extends HttpServlet {
                 favorites.setProperty("count", count);
                 ds.put(favorites);
 
-                log.info("Posting msg, updating count to " + count +
+                log.info("Posting favorite, updating count to " + count +
                          "; " + retries + " retries remaining");
 
                 txn.commit();
@@ -97,7 +101,7 @@ public class AddSummoner extends HttpServlet {
 
         if (!success) {
             resp.getWriter().println
-                ("<p>A new message could not be posted.  Try again later." +
+                ("<p>A Could not add to Favorites.  Try again later." +
                  "<a href=\"/uerPage\">Return to home page.</a></p>");
             txn.rollback();
             

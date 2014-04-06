@@ -52,6 +52,7 @@ public class QuerySummoner extends HttpServlet {
 			
 		} catch (RiotApiException e) {
 			out.println(summonerName+" is invalid summoner ID");
+			out.println("<a href=\"/uerPage\">Return to home page.</a></p>");
 		}
 	}
 }

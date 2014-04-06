@@ -85,7 +85,7 @@ public class UserPage extends HttpServlet {
                 resp.getWriter().println("<h3>" + (String) result.getProperty("summoner_name") + "</h3></p>");
             }
         } catch (EntityNotFoundException e) {
-            resp.getWriter().println("<p>No messages.</p>");
+            resp.getWriter().println("<p>No Favorites Saved.</p>");
         }
 		
 		out.println("  </body>");
