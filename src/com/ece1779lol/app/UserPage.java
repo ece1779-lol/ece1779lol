@@ -8,6 +8,14 @@ import java.util.Map;
 
 import javax.servlet.http.*;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -20,6 +28,11 @@ import net.enigmablade.riotapi.types.*;
 
 @SuppressWarnings("serial")
 public class UserPage extends HttpServlet {
+	
+	// Hard code the message board name for simplicity.  Could support
+    // multiple boards by getting this from the URL.
+	private String favorite = "favorites";
+	
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		resp.setContentType("text/html");
@@ -49,11 +62,32 @@ public class UserPage extends HttpServlet {
         
 		out.println(navBar);
 		out.println("</br>");
-		out.println("    <form action='/addSummoner' method='post'>");
-		out.println("	 <p>Query a Summoner</p>");
-		out.println("	    Summoner Name <input type='text' name='summonerName'/><br />");
-		out.println("   	<input type='submit' value='Send'>");
-		out.println("    </form>");
+		out.println("<form action='/querySummoner' method='post'>");
+		out.println("  <p>Query a Summoner</p>");
+		out.println("  Summoner Name <input type='text' name='summonerName'/><br />");
+		out.println("  <input type='submit' value='Send'>");
+		out.println("</form>");
+		
+        DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+
+        String keyname = favorite+user.getUserId();
+        
+        // Display information about a message board and its messages.
+        Key favoriteKey = KeyFactory.createKey("Favorites", keyname);
+        try {
+            Entity favorites = ds.get(favoriteKey);
+            long count = (Long) favorites.getProperty("count");
+            out.println("<p>Favorites of " + keyname + " (" + count + " total):</p>");
+
+            Query q = new Query("favorite", favoriteKey);
+            PreparedQuery pq = ds.prepare(q);
+            for (Entity result : pq.asIterable()) {
+                resp.getWriter().println("<h3>" + (String) result.getProperty("summoner_name") + "</h3></p>");
+            }
+        } catch (EntityNotFoundException e) {
+            resp.getWriter().println("<p>No messages.</p>");
+        }
+		
 		out.println("  </body>");
 		out.println("</html>");
 	}

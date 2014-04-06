@@ -1,0 +1,11 @@
+<!-- Indices written at Sun, 6 Apr 2014 12:34:32 EDT -->
+
+<datastore-indexes>
+
+    <!-- Used 2 times in query history -->
+    <datastore-index kind="Book" ancestor="false" source="auto">
+        <property name="copyrightYear" direction="desc"/>
+        <property name="title" direction="asc"/>
+    </datastore-index>
+
+</datastore-indexes>

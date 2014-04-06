@@ -76,7 +76,6 @@ public class QueriesServlet extends HttpServlet {
             out.println("<p>Query result: key = " + KeyFactory.keyToString(key) + "</p>");
         }
 
-        
         ds.delete(book1.getKey(), book2.getKey(), book3.getKey());
 
         SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSSSSS");

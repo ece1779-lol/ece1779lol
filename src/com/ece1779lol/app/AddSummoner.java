@@ -3,11 +3,20 @@ package com.ece1779lol.app;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.*;
 
+import com.google.appengine.api.datastore.DatastoreFailureException;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -20,6 +29,9 @@ import net.enigmablade.riotapi.types.*;
 
 @SuppressWarnings("serial")
 public class AddSummoner extends HttpServlet {
+	
+	private String favorite = "favorites";
+	
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		resp.setContentType("text/html");
@@ -30,25 +42,67 @@ public class AddSummoner extends HttpServlet {
 		
 		out.println("Hello "+user.getNickname());
 		
-		RiotApi client = (RiotApi)getServletContext().getAttribute("RiotClient");
-		
-		Region REGION = Region.NA;
-		Summoner summoner;
-		
-		String summonerName = req.getParameter("summonerName");
-		
-		try {
-			summoner = client.getSummoner(REGION, summonerName);
-			out.println(summoner.getName()+" "+summoner.getSummonerLevel());
+        DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 
-			List<Game> myMatchHistory = summoner.getMatchHistory();
-			for (Game game : myMatchHistory)
-			{
-				out.println(game.getGameId()+" "+game.isWin()+" "+game.getEnemyMinionsKilled()+" "+game.getLength()+" "+game.getTotalPlayerScore()+" "+game.getGoldLeft());
-			}
-			
-		} catch (RiotApiException e) {
-			out.println(summonerName+" is invalid summoner ID");
-		}
+        String summonerName = req.getParameter("summonerName");
+        Date postDate = new Date();
+
+        int retries = 3;
+        boolean success = false;
+        
+        Transaction txn=null;
+        
+        while (!success && retries > 0) {
+            --retries;
+            try {
+                txn = ds.beginTransaction();
+
+                String keyname = favorite+user.getUserId();
+                Entity favorites;
+                Key boardKey;
+                
+                try {
+                    boardKey = KeyFactory.createKey("Favorites", keyname);
+                    favorites = ds.get(boardKey);
+
+                } catch (EntityNotFoundException e) {
+                    favorites = new Entity("MessageBoard", keyname);
+                    favorites.setProperty("count", 0L);
+                    boardKey = ds.put(favorites);
+                }
+
+                Entity message = new Entity("Message", boardKey);  // set parent child relationship
+                message.setProperty("summoner_name", summonerName);
+                message.setProperty("post_date", postDate);
+                ds.put(message);
+
+                long count = (Long) favorites.getProperty("count");
+                ++count;
+                favorites.setProperty("count", count);
+                ds.put(favorites);
+
+                log.info("Posting msg, updating count to " + count +
+                         "; " + retries + " retries remaining");
+
+                txn.commit();
+
+                // Break out of retry loop.
+                success = true;
+
+            } catch (DatastoreFailureException e) {
+            	// Allow retry to occur.
+            		
+            }
+        }
+
+        if (!success) {
+            resp.getWriter().println
+                ("<p>A new message could not be posted.  Try again later." +
+                 "<a href=\"/uerPage\">Return to home page.</a></p>");
+            txn.rollback();
+            
+        } else {
+            resp.sendRedirect("/userPage");
+        }
 	}
 }
