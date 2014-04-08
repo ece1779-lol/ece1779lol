@@ -25,14 +25,13 @@ public class QuerySummoner extends HttpServlet {
 		resp.setContentType("text/html");
 		PrintWriter out = resp.getWriter();
 		
+		UserService userService = UserServiceFactory.getUserService();
+		User user = userService.getCurrentUser();
+		
 		HelperFunctions.printLolHeader(out, "Query LOL Summoner");
 		out.println("<body>");
 		HelperFunctions.printLolLogo(out);
-
-		UserService userService = UserServiceFactory.getUserService();
-		User user = userService.getCurrentUser();
-
-		out.println("Hello "+user.getNickname());
+		HelperFunctions.printLolMenu(out, userService, user);
 
 		RiotApi client = (RiotApi)getServletContext().getAttribute("RiotClient");
 		HelperFunctions help = (HelperFunctions)getServletContext().getAttribute("HelperFunctions");

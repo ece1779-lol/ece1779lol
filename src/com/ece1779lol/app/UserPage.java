@@ -48,30 +48,29 @@ public class UserPage extends HttpServlet {
 		/* header */
 		HelperFunctions.printLolHeader(out, "Welcome to LOL tracker");
 
-		/* logo */
+		/* logo and menu */
 		out.println("  <body>");
 		HelperFunctions.printLolLogo(out);
+		HelperFunctions.printLolMenu(out, userService, user);
 
-		String navBar;
-		if (user != null) {
-			navBar = "<p>Welcome, " + user.getNickname() + "! You can <a href=\"" +
-					 userService.createLogoutURL("/") +
-					 "\">sign out</a>.</p>";
-		} else {
-			navBar = "<div id='container'>Welcome! <a href=\"" + userService.createLoginURL("/userPage") +
-					 "\">Sign in or register</a> to customize.</div>";
+		/* goto sign in menu */
+		if (user == null) {
+			String navBar = "<nav>Welcome! <a href=\"" + userService.createLoginURL("/userPage") +
+					 "\">Sign in or register</a> to customize.</nav>";
 			out.println(navBar);
 			out.println("  </body>");
 			out.println("</html>");
 			return;
 		}
+		
+		/* user signed in */
 
 		HelperFunctions help = (HelperFunctions)getServletContext().getAttribute("HelperFunctions");
-
-		out.println(navBar);
-		out.println("</br>");
+		
+		out.println("<div id='container'>");
+		
 		out.println("<form action='/querySummoner' method='post'>");
-		out.println("  <p>Query a Summoner</p>");
+		out.println("  <h1 class='content'>Query a Summoner</h1>");
 		out.println("  Summoner Name <input type='text' name='summonerName'/>");
 		out.println("  <select name='region'>");
 		out.println("  <option value='na' selected>N.A.</option>");
@@ -93,7 +92,7 @@ public class UserPage extends HttpServlet {
 
 		// Display information about a message board and its messages.
 		Key userFavoritesKey = KeyFactory.createKey("Favorites", userFavoritesKeyName);
-		out.println("<h1>Tracking Summoners :</h1>");
+		out.println("<h1 class='content'>Tracking Summoners :</h1>");
 
 		Query q = new Query("summoner_ref", userFavoritesKey);
 		PreparedQuery pq = ds.prepare(q);
@@ -114,6 +113,8 @@ public class UserPage extends HttpServlet {
 			//TODO: print games here ...
 
 		}
+		
+		out.println("</div>"); /* end of container */ 
 
 		out.println("  </body>");
 		out.println("</html>");

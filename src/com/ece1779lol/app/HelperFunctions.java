@@ -2,6 +2,9 @@ package com.ece1779lol.app;
 
 import java.io.PrintWriter;
 
+import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
+
 import net.enigmablade.riotapi.constants.Region;
 
 public class HelperFunctions {
@@ -24,8 +27,21 @@ public class HelperFunctions {
 	public static void printLolLogo(PrintWriter out)
 	{
 		out.println("<div id='logo'>");
-		out.println("<img height=100 src ='/css/lol_logo.png'>");
-		out.println("<b>ECE1779 LOL Tracker</b>");
+		out.println("<img height=140 src ='/css/lol_logo.png'>");
+		out.println("<span>ECE1779 LOL Tracker</span>");
+		out.println("</div>");
+	}
+	
+	public static void printLolMenu(PrintWriter out, UserService userService, User user)
+	{
+		out.println("<div id='menu'>");
+		out.println("<a class='home-link' href='/userPage'>Home</a>");
+		
+		if (user != null) {
+			out.println("<p>" + user.getNickname() + "</p>");
+			out.println("<a href=\"" + userService.createLogoutURL("/") + "\">Sign Out</a>");
+		}
+
 		out.println("</div>");
 	}
 	
