@@ -38,21 +38,51 @@ public class QuerySummoner extends HttpServlet {
 		String summonerName = req.getParameter("summonerName");
 		Region region = help.getRegionFromString(req.getParameter("region"));
 		
+		//Region region = Region.NA;
+		QueueType soloQueueQuery = QueueType.RANKED_5V5_SOLO;
+		League leagueData;
+		LeagueTier leagueTierData;
+
 		try {
 			summoner = client.getSummoner(region, summonerName);
 			out.println("<h1>"+summoner.getName()+" Level :"+summoner.getSummonerLevel());
+			
+			//obtain League information
+			leagueData = summoner.getLeague(soloQueueQuery);
+			leagueTierData = leagueData.getTier();
+            List<League.Entry> leagueEntryData = leagueData.getEntries();
+            
+            League.Entry leagueEntry = leagueEntryData.get(0);
+
+		    out.println("</br>");
+		    out.println("LP: " +leagueEntry.getLeaguePoints()+ " Tier: " +leagueData.getTier()+ " Division: " +leagueEntry.getRank());
+		    out.println("</br>");
+			
 			out.println("  <form id='addFavorite' name=add_favorite action='/addSummoner' method='post'>");
 			out.println("  <input type='hidden' name='summonerName' value="+summoner.getName()+">");
 			out.println("  <input type='hidden' name='region' value="+region.getValue()+">");
 			out.println("  <input type='submit' value='Add to Favorite'>");
 			out.println("  </form>");
 			out.println("</h1>");
+			
+			out.println("Champion Used" + " Outcome " + " Length " + "Total Gold");
+		    out.println("</br>");
 
 			try {
 				List<Game> myMatchHistory = summoner.getMatchHistory();
 				for (Game game : myMatchHistory)
 				{
-					out.println(game.getGameId()+" "+game.isWin()+" "+game.getEnemyMinionsKilled()+" "+game.getLength()+" "+game.getTotalPlayerScore()+" "+game.getGoldLeft());
+					Champion champion = game.getChampion();
+
+					out.println(champion.getName()+ " ");
+					out.println("<img src=\"" +champion.getName()+"_Square_0.png\" height=50 width=50>");
+					if (game.isWin())
+						out.println("Win ");
+					else
+						out.println("Loss ");
+					
+					int gameLengthInMinutes = game.getLength() / 60;
+					out.println(gameLengthInMinutes+" "+game.getGoldEarned());
 					out.println("</br>");
 				}
 			} catch (RiotApiException e) {
@@ -61,7 +91,7 @@ public class QuerySummoner extends HttpServlet {
 			
 		} catch (RiotApiException e) {
 			out.println(summonerName+" is invalid summoner ID");
-			out.println("<a href=\"/uerPage\">Return to home page.</a></p>");
+			out.println("<a href=\"/userPage\">Return to home page.</a></p>");
 		}
 	}
 }

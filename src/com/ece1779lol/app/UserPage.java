@@ -94,7 +94,7 @@ public class UserPage extends HttpServlet {
             Query q = new Query("favorite", favoriteKey);
             PreparedQuery pq = ds.prepare(q);
             for (Entity result : pq.asIterable()) {
-                out.println("<h3>" + (String) result.getProperty("summoner_name") + "</h3></p>");
+                out.println("<h3>" + (String) result.getProperty("summonerName") + "</h3></p>");
             }
         } catch (EntityNotFoundException e) {
             out.println("<p>No Favorites Saved.</p>");
