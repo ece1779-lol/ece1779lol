@@ -163,6 +163,11 @@ public class RemoveSummoner extends HttpServlet {
 		}
 	}
 	
+	public void doGet(HttpServletRequest req, HttpServletResponse resp)
+			throws IOException {
+		resp.sendRedirect("/");
+	}
+	
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		

@@ -35,6 +35,11 @@ public class UserPage extends HttpServlet {
 	private String globalFavorites = "globalFavorites";
 	private String userFavoritePrefix = "favorites";
 
+	public void doPost(HttpServletRequest req, HttpServletResponse resp)
+			throws IOException {
+		doGet(req, resp);
+	}
+	
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 
