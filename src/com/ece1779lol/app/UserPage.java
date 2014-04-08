@@ -16,6 +16,7 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -84,24 +85,31 @@ public class UserPage extends HttpServlet {
 		
         DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 
-        String keyname = userFavoritePrefix+user.getUserId();
+        String userFavoritesKeyName = userFavoritePrefix+user.getUserId();
         
         // Display information about a message board and its messages.
-        Key favoriteKey = KeyFactory.createKey("Favorites", keyname);
-        try {
-        	out.println("<h1>Tracking Summoners :</h1>");
-            Entity favorites = ds.get(favoriteKey);
-            long count = (Long) favorites.getProperty("count");
-            out.println("<p>Favorites of " + keyname + " (" + count + " total):</p>");
+        Key userFavoritesKey = KeyFactory.createKey("Favorites", userFavoritesKeyName);
+        out.println("<h1>Tracking Summoners :</h1>");
 
-            Query q = new Query("summoner", favoriteKey);
-            PreparedQuery pq = ds.prepare(q);
-            for (Entity result : pq.asIterable()) {
-                out.println("<h3>" + (String)result.getProperty("summoner_name") +" "+ help.getStringFromRegion((String)result.getProperty("region")) + "</h3></p>");
-            }
-        } catch (EntityNotFoundException e) {
-            out.println("<p>No Favorites Saved.</p>");
-        }
+		Query q = new Query("summoner_ref", userFavoritesKey);
+		PreparedQuery pq = ds.prepare(q);
+		out.println("<p>Favorites of " + userFavoritesKeyName + " (" + pq.countEntities() + " total):</p>");
+		for (Entity favorite_keys : pq.asIterable()) {
+			String summoner_key = (String)favorite_keys.getProperty("summoner_key");
+			out.println("<h3>"+summoner_key+ "</h3></p>");
+			
+			Query q2 = new Query("summoner", KeyFactory.stringToKey(summoner_key));
+		    PreparedQuery pq2 = ds.prepare(q2);
+		    if (pq2.countEntities() != 1)
+		    	out.println("<h1>WE GOT BIG ISSUE</h1>");
+		    for (Entity summoner : pq2.asIterable()) {
+		    	out.println("<p>" + (String)summoner.getProperty("summoner_name") +" "+
+	    					help.getStringFromRegion((String)summoner.getProperty("region")) + "</p>");		    	
+		    }
+		    
+		    //TODO: print games here ...
+
+		}
 		
 		out.println("  </body>");
 		out.println("</html>");
