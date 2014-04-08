@@ -1,5 +1,7 @@
 package com.ece1779lol.app;
 
+import java.io.PrintWriter;
+
 import net.enigmablade.riotapi.constants.Region;
 
 public class HelperFunctions {
@@ -7,6 +9,24 @@ public class HelperFunctions {
 	public HelperFunctions ()
 	{
 		
+	}
+	
+	public static void printLolHeader(PrintWriter out, String title)
+	{
+		out.println("<head>");
+		out.println("<title>" + title + "</title>");
+		out.println("<meta name='viewport' content='width=600'>");
+		out.println("<link rel='stylesheet' href='/css/style.css'>");
+		out.println("<link rel='stylesheet' href='/css/code.css'>");
+		out.println("</head>");
+	}
+	
+	public static void printLolLogo(PrintWriter out)
+	{
+		out.println("<div id='logo'>");
+		out.println("<img height=100 src ='/css/lol_logo.png'>");
+		out.println("<b>ECE1779 LOL Tracker</b>");
+		out.println("</div>");
 	}
 	
 	public Region getRegionFromString(String region)

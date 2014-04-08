@@ -24,6 +24,10 @@ public class QuerySummoner extends HttpServlet {
 			throws IOException {
 		resp.setContentType("text/html");
 		PrintWriter out = resp.getWriter();
+		
+		HelperFunctions.printLolHeader(out, "Query LOL Summoner");
+		out.println("<body>");
+		HelperFunctions.printLolLogo(out);
 
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
@@ -97,6 +101,8 @@ public class QuerySummoner extends HttpServlet {
 		} catch (RiotApiException e) {
 			out.println(summonerName+" is invalid summoner ID");
 			out.println("<a href=\"/userPage\">Return to home page.</a></p>");
+		} finally {
+			out.println("</body>");
 		}
 	}
 }

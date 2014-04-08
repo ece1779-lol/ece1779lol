@@ -45,8 +45,12 @@ public class UserPage extends HttpServlet {
 		User user = userService.getCurrentUser();
 
 		out.println("<html>");
-		out.println("  <head><title>Welcome to LOL tracker</title></head>");
+		/* header */
+		HelperFunctions.printLolHeader(out, "Welcome to LOL tracker");
+
+		/* logo */
 		out.println("  <body>");
+		HelperFunctions.printLolLogo(out);
 
 		String navBar;
 		if (user != null) {
@@ -54,8 +58,8 @@ public class UserPage extends HttpServlet {
 					 userService.createLogoutURL("/") +
 					 "\">sign out</a>.</p>";
 		} else {
-			navBar = "<p>Welcome! <a href=\"" + userService.createLoginURL("/userPage") +
-					 "\">Sign in or register</a> to customize.</p>";
+			navBar = "<div id='container'>Welcome! <a href=\"" + userService.createLoginURL("/userPage") +
+					 "\">Sign in or register</a> to customize.</div>";
 			out.println(navBar);
 			out.println("  </body>");
 			out.println("</html>");
