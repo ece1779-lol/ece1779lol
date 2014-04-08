@@ -27,5 +27,24 @@ public class HelperFunctions {
 		}
 		return REGION;
 	}
+	
+	public String getStringFromRegion(String region)
+	{
+		String REGION;
+		switch(region)
+		{
+			case "na":  REGION = "N.A."; break;
+			case "euw":  REGION = "Europe W."; break;
+			case "eune":  REGION = "Europe N. & E."; break;
+			case "br":  REGION = "Brazil"; break;
+			case "tr":  REGION = "Turkey"; break;
+			case "ru":  REGION = "Russia"; break;
+			case "lan":  REGION = "L.A. North"; break;
+			case "las":  REGION = "L.A. South"; break;
+			case "oce":  REGION = "Oceania"; break;
+			default: REGION = "N.A."; break;
+		}
+		return REGION;
+	}
 			
 }
