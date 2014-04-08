@@ -30,5 +30,6 @@
 
   	<static-files>
     	<include path="/**.png" />
+    	<include path="/css/**.css" />
     </static-files>
 </appengine-web-app>
