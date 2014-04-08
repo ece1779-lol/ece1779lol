@@ -174,23 +174,13 @@ public class AddSummoner extends HttpServlet {
                 // Add to favorites if it is not in favorites
                 Key globalSummonerKey = addToGlobalFavorites(ds, summonerName, region);
                 String globalSummonerKeyStr = KeyFactory.keyToString(globalSummonerKey);
+                String userSummoneName = user.getUserId()+globalSummonerKeyStr;
                 Key userSummonerKey;
                 Entity userSummonerEntity;
 
-                Query q = new Query("summoner_ref");
-                q.setFilter(new FilterPredicate("summoner_key",
-                        Query.FilterOperator.EQUAL,
-                        globalSummonerKeyStr));
-                PreparedQuery pq = ds.prepare(q);
-                
-                if (pq.countEntities() == 0)
-                {
-                	userSummonerEntity = new Entity("summoner_ref", userFavoritesKey);  // key is summonername+region
-                    userSummonerEntity.setProperty("summoner_key", globalSummonerKeyStr);
-                    userSummonerEntity.setProperty("region", region.getValue());
-                    userSummonerKey = ds.put(userSummonerEntity);
-                }
-                    
+            	userSummonerEntity = new Entity("summoner_ref", userSummoneName, userFavoritesKey);  // key is summonername+region
+                userSummonerEntity.setProperty("summoner_key", globalSummonerKeyStr);
+                userSummonerKey = ds.put(userSummonerEntity);
                    
                 addMatchHistory(ds, globalSummonerKeyStr, summonerName, region);
                
