@@ -2,7 +2,10 @@ package com.ece1779lol.app;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -48,17 +51,24 @@ public class QuerySummoner extends HttpServlet {
 			//obtain League information
 			try {
 				League leagueData;
-				LeagueTier leagueTierData;
+				
 				QueueType soloQueueQuery = QueueType.RANKED_5V5_SOLO;
 				leagueData = summoner.getLeague(soloQueueQuery);
-				leagueTierData = leagueData.getTier();
-				List<League.Entry> leagueEntryData = leagueData.getEntries();
+				
+				Map<String, League.Entry> leagueEntryData = leagueData.getEntries();
+
+				League.Entry leagueEntry = leagueEntryData.get(Long.toString(summoner.getId()));
 	
-				League.Entry leagueEntry = leagueEntryData.get(0);
-	
-				out.println("</br>");
-				out.println("LP: " +leagueEntry.getLeaguePoints()+ " Tier: " +leagueData.getTier()+ " Division: " +leagueEntry.getRank());
-				out.println("</br>");
+				if (leagueEntry != null)
+				{
+					out.println("</br>");
+					out.println("LP: " +leagueEntry.getLeaguePoints()+ " Tier: " +leagueData.getTier()+ " Division: " +leagueEntry.getRank());
+					out.println("</br>");					
+				}
+				else
+				{
+					out.println("No League Info");
+				}
 
 			} catch (RiotApiException e) {
 				out.println("No League Info");
@@ -80,6 +90,10 @@ public class QuerySummoner extends HttpServlet {
 				List<Game> myMatchHistory = summoner.getMatchHistory();
 				for (Game game : myMatchHistory)
 				{
+					DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+					String dateFormatted = formatter.format(game.getPlayedDate());
+					out.println(dateFormatted+" ");
+					
 					Champion champion = game.getChampion();
 
 					out.println(champion.getName()+ " ");
@@ -91,6 +105,9 @@ public class QuerySummoner extends HttpServlet {
 
 					int gameLengthInMinutes = game.getLength() / 60;
 					out.println(gameLengthInMinutes+" "+game.getGoldEarned());
+					
+					out.println(game.getChampionsKilled()+" "+game.getAssists()+" "+game.getDeaths());
+					
 					out.println("</br>");
 				}
 			} catch (RiotApiException e) {
