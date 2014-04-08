@@ -38,37 +38,41 @@ public class QuerySummoner extends HttpServlet {
 		String summonerName = req.getParameter("summonerName");
 		Region region = help.getRegionFromString(req.getParameter("region"));
 
-		//Region region = Region.NA;
-		QueueType soloQueueQuery = QueueType.RANKED_5V5_SOLO;
-		League leagueData;
-		LeagueTier leagueTierData;
-
 		try {
 			summoner = client.getSummoner(region, summonerName);
 			out.println("<h1>"+summoner.getName()+" Level :"+summoner.getSummonerLevel());
 
 			//obtain League information
-			leagueData = summoner.getLeague(soloQueueQuery);
-			leagueTierData = leagueData.getTier();
-			List<League.Entry> leagueEntryData = leagueData.getEntries();
+			try {
+				League leagueData;
+				LeagueTier leagueTierData;
+				QueueType soloQueueQuery = QueueType.RANKED_5V5_SOLO;
+				leagueData = summoner.getLeague(soloQueueQuery);
+				leagueTierData = leagueData.getTier();
+				List<League.Entry> leagueEntryData = leagueData.getEntries();
+	
+				League.Entry leagueEntry = leagueEntryData.get(0);
+	
+				out.println("</br>");
+				out.println("LP: " +leagueEntry.getLeaguePoints()+ " Tier: " +leagueData.getTier()+ " Division: " +leagueEntry.getRank());
+				out.println("</br>");
 
-			League.Entry leagueEntry = leagueEntryData.get(0);
-
-			out.println("</br>");
-			out.println("LP: " +leagueEntry.getLeaguePoints()+ " Tier: " +leagueData.getTier()+ " Division: " +leagueEntry.getRank());
-			out.println("</br>");
-
+			} catch (RiotApiException e) {
+				out.println("No League Info");
+			}
+			
 			out.println("  <form id='addFavorite' name=add_favorite action='/addSummoner' method='post'>");
 			out.println("  <input type='hidden' name='summonerName' value="+summoner.getName()+">");
 			out.println("  <input type='hidden' name='region' value="+region.getValue()+">");
 			out.println("  <input type='submit' value='Add to Favorite'>");
 			out.println("  </form>");
 			out.println("</h1>");
+			
 
 			out.println("</br>");
 			out.println("Champion Used" + " Outcome " + " Length " + "Total Gold");
-			out.println("</br>");
-
+			out.println("</br>");
+			// Match History
 			try {
 				List<Game> myMatchHistory = summoner.getMatchHistory();
 				for (Game game : myMatchHistory)
