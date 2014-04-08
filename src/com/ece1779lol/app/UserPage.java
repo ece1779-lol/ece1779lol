@@ -55,15 +55,10 @@ public class UserPage extends HttpServlet {
 
 		/* goto sign in menu if not signed in*/
 		if (user == null) {
-			String navBar = "<nav>Welcome! <a href=\"" + userService.createLoginURL("/userPage") +
-					 "\">Sign in or register</a> to customize.</nav>";
-			out.println(navBar);
-			out.println("  </body>");
-			out.println("</html>");
+			HelperFunctions.printLoginPage(out, userService);
 			return;
 		}
 		
-		HelperFunctions help = (HelperFunctions)getServletContext().getAttribute("HelperFunctions");
 		out.println("<div id='container'>");
 		
 		/* Form to query a summoner */
@@ -105,18 +100,24 @@ public class UserPage extends HttpServlet {
 
 		Query q = new Query("summoner_ref", userFavoritesKey);
 		PreparedQuery pq = ds.prepare(q);
-		out.println("<p>Favorites of " + userFavoritesKeyName + " (" + pq.countEntities() + " total):</p>");
+		//out.println("<p>Favorites of " + userFavoritesKeyName + " (" + pq.countEntities() + " total):</p>");
+		
 		for (Entity favorite_keys : pq.asIterable()) {
-			String summoner_key = (String)favorite_keys.getProperty("summoner_key");
-			out.println("<h3>"+summoner_key+ "</h3></p>");
 
+			String summoner_key = (String)favorite_keys.getProperty("summoner_key");
 			Query q2 = new Query("summoner", KeyFactory.stringToKey(summoner_key));
 			PreparedQuery pq2 = ds.prepare(q2);
 			if (pq2.countEntities() != 1)
 				out.println("<h1>WE GOT BIG ISSUE</h1>");
 			for (Entity summoner : pq2.asIterable()) {
-				out.println("<p>" + (String)summoner.getProperty("summoner_name") +" "+
-							help.getStringFromRegion((String)summoner.getProperty("region")) + "</p>");
+				out.println("<h4>" + (String)summoner.getProperty("summoner_name") +" "+
+							HelperFunctions.getStringFromRegion((String)summoner.getProperty("region")));
+				out.println("  <form id='addFavorite' name=add_favorite action='/removeSummoner' method='post'>");
+				out.println("  <input type='hidden' name='favoritesKey' value="+KeyFactory.keyToString(favorite_keys.getKey())+">");
+				out.println("  <input type='hidden' name='summonerKey' value="+summoner_key+">");
+				out.println("  <input type='submit' value='Remove from Favorites'>");
+				out.println("  </form>");
+				out.println("</h4>");
 			}
 
 			//TODO: print games here ...

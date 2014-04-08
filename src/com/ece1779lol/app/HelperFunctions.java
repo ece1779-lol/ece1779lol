@@ -8,10 +8,15 @@ import com.google.appengine.api.users.UserService;
 import net.enigmablade.riotapi.constants.Region;
 
 public class HelperFunctions {
-
-	public HelperFunctions ()
+	
+	public static void printLoginPage(PrintWriter out, UserService userService)
 	{
-		
+			String navBar = "<nav>Welcome! <a href=\"" + userService.createLoginURL("/") +
+					 "\">Sign in or register</a> to customize.</nav>";
+			out.println(navBar);
+			out.println("  </body>");
+			out.println("</html>");
+			return;
 	}
 	
 	public static void printLolHeader(PrintWriter out, String title)
@@ -35,7 +40,7 @@ public class HelperFunctions {
 	public static void printLolMenu(PrintWriter out, UserService userService, User user)
 	{
 		out.println("<div id='menu'>");
-		out.println("<a class='home-link' href='/userPage'>Home</a>");
+		out.println("<a class='home-link' href='/'>Home</a>");
 		
 		if (user != null) {
 			out.println("<p>" + user.getNickname() + "</p>");
@@ -45,7 +50,7 @@ public class HelperFunctions {
 		out.println("</div>");
 	}
 	
-	public Region getRegionFromString(String region)
+	public static Region getRegionFromString(String region)
 	{
 		Region REGION;
 		switch(region)
@@ -64,7 +69,7 @@ public class HelperFunctions {
 		return REGION;
 	}
 	
-	public String getStringFromRegion(String region)
+	public static String getStringFromRegion(String region)
 	{
 		String REGION;
 		switch(region)

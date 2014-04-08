@@ -36,6 +36,15 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	</servlet-mapping>
 
 	<servlet>
+		<servlet-name>RemoveSummoner</servlet-name>
+		<servlet-class>com.ece1779lol.app.RemoveSummoner</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>RemoveSummoner</servlet-name>
+		<url-pattern>/removeSummoner</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
 		<servlet-name>QuerySummoner</servlet-name>
 		<servlet-class>com.ece1779lol.app.QuerySummoner</servlet-class>
 	</servlet>
@@ -50,7 +59,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>UserPage</servlet-name>
-		<url-pattern>/userPage</url-pattern>
+		<url-pattern>/</url-pattern>
 	</servlet-mapping>
 
 	<servlet>
@@ -248,7 +257,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
   	</security-constraint>
 	
 	<welcome-file-list>
-		<welcome-file>index.html</welcome-file>
+		<welcome-file>UserPage</welcome-file>
 	</welcome-file-list>
  <servlet>
   <servlet-name>SystemServiceServlet</servlet-name>

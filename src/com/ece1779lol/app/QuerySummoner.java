@@ -36,13 +36,18 @@ public class QuerySummoner extends HttpServlet {
 		HelperFunctions.printLolLogo(out);
 		HelperFunctions.printLolMenu(out, userService, user);
 
+		/* goto sign in menu if not signed in*/
+		if (user == null) {
+			HelperFunctions.printLoginPage(out, userService);
+			return;
+		}
+		
 		RiotApi client = (RiotApi)getServletContext().getAttribute("RiotClient");
-		HelperFunctions help = (HelperFunctions)getServletContext().getAttribute("HelperFunctions");
 
 		Summoner summoner;
 
 		String summonerName = req.getParameter("summonerName");
-		Region region = help.getRegionFromString(req.getParameter("region"));
+		Region region = HelperFunctions.getRegionFromString(req.getParameter("region"));
 
 		try {
 			summoner = client.getSummoner(region, summonerName);
@@ -116,7 +121,7 @@ public class QuerySummoner extends HttpServlet {
 
 		} catch (RiotApiException e) {
 			out.println(summonerName+" is invalid summoner ID");
-			out.println("<a href=\"/userPage\">Return to home page.</a></p>");
+			out.println("<a href=\"/\">Return to home page.</a></p>");
 		} finally {
 			out.println("</body>");
 		}

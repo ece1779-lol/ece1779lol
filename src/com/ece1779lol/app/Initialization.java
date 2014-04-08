@@ -21,9 +21,6 @@ public class Initialization extends HttpServlet {
     		RiotApi client = new RiotApi(apiKey, null, LimitPer10Sec, LimitPer10Min);
     		
     		context.setAttribute("RiotClient", client);
-    		
-    		HelperFunctions help = new HelperFunctions();
-    		context.setAttribute("HelperFunctions", help);
 		}
 		catch (Exception ex) {
 		    getServletContext().log("SQLGatewayPool Error: " + ex.getMessage());
