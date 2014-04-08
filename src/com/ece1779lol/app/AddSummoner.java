@@ -38,18 +38,21 @@ public class AddSummoner extends HttpServlet {
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
+		
 		resp.setContentType("text/html");
 		PrintWriter out = resp.getWriter();
+		
+		HelperFunctions help = (HelperFunctions)getServletContext().getAttribute("HelperFunctions");
 		
         UserService userService = UserServiceFactory.getUserService();
         User user = userService.getCurrentUser();
 		
-		out.println("Hello "+user.getNickname());
+		out.println("<p>Hello "+user.getNickname()+"</p>");
 		
         DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 
         String summonerName = req.getParameter("summonerName");
-        Date postDate = new Date();
+        Region region = help.getRegionFromString(req.getParameter("region"));
 
         int retries = 3;
         boolean success = false;
@@ -77,7 +80,7 @@ public class AddSummoner extends HttpServlet {
 
                 Entity message = new Entity("favorite", boardKey);  // set parent child relationship
                 message.setProperty("summoner_name", summonerName);
-                message.setProperty("post_date", postDate);
+                message.setProperty("region", region);
                 ds.put(message);
 
                 long count = (Long) favorites.getProperty("count");

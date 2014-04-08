@@ -64,7 +64,18 @@ public class UserPage extends HttpServlet {
 		out.println("</br>");
 		out.println("<form action='/querySummoner' method='post'>");
 		out.println("  <p>Query a Summoner</p>");
-		out.println("  Summoner Name <input type='text' name='summonerName'/><br />");
+		out.println("  Summoner Name <input type='text' name='summonerName'/>");
+		out.println("  <select name='region'>");
+		out.println("  <option value='na' selected>N.A.</option>");
+		out.println("  <option value='euw'>Europe W.</option>");
+		out.println("  <option value='eune'>Europe N. & E.</option>");
+		out.println("  <option value='br'>Brazil</option>");
+		out.println("  <option value='tr'>Turkey</option>");
+		out.println("  <option value='ru'>Russia</option>");
+		out.println("  <option value='lan'>L.A. North</option>");
+		out.println("  <option value='las'>L.A. South</option>");
+		out.println("  <option value='oce'>Oceania</option>");
+		out.println("  </select>");
 		out.println("  <input type='submit' value='Send'>");
 		out.println("</form>");
 		
@@ -75,6 +86,7 @@ public class UserPage extends HttpServlet {
         // Display information about a message board and its messages.
         Key favoriteKey = KeyFactory.createKey("Favorites", keyname);
         try {
+        	out.println("<h1>Tracking Summoners :</h1>");
             Entity favorites = ds.get(favoriteKey);
             long count = (Long) favorites.getProperty("count");
             out.println("<p>Favorites of " + keyname + " (" + count + " total):</p>");
@@ -82,10 +94,10 @@ public class UserPage extends HttpServlet {
             Query q = new Query("favorite", favoriteKey);
             PreparedQuery pq = ds.prepare(q);
             for (Entity result : pq.asIterable()) {
-                resp.getWriter().println("<h3>" + (String) result.getProperty("summoner_name") + "</h3></p>");
+                out.println("<h3>" + (String) result.getProperty("summoner_name") + "</h3></p>");
             }
         } catch (EntityNotFoundException e) {
-            resp.getWriter().println("<p>No Favorites Saved.</p>");
+            out.println("<p>No Favorites Saved.</p>");
         }
 		
 		out.println("  </body>");
