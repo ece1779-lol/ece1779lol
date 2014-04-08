@@ -31,10 +31,12 @@ public class UserPage extends HttpServlet {
 	
 	// Hard code the message board name for simplicity.  Could support
     // multiple boards by getting this from the URL.
-	private String favorite = "favorites";
+	private String globalFavorites = "globalFavorites";
+	private String userFavoritePrefix = "favorites";
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
+		
 		resp.setContentType("text/html");
 		PrintWriter out = resp.getWriter();
 
@@ -59,6 +61,7 @@ public class UserPage extends HttpServlet {
             return;
         }
 		
+        HelperFunctions help = (HelperFunctions)getServletContext().getAttribute("HelperFunctions");
         
 		out.println(navBar);
 		out.println("</br>");
@@ -81,7 +84,7 @@ public class UserPage extends HttpServlet {
 		
         DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 
-        String keyname = favorite+user.getUserId();
+        String keyname = userFavoritePrefix+user.getUserId();
         
         // Display information about a message board and its messages.
         Key favoriteKey = KeyFactory.createKey("Favorites", keyname);
@@ -91,10 +94,10 @@ public class UserPage extends HttpServlet {
             long count = (Long) favorites.getProperty("count");
             out.println("<p>Favorites of " + keyname + " (" + count + " total):</p>");
 
-            Query q = new Query("favorite", favoriteKey);
+            Query q = new Query("summoner", favoriteKey);
             PreparedQuery pq = ds.prepare(q);
             for (Entity result : pq.asIterable()) {
-                out.println("<h3>" + (String) result.getProperty("summoner_name") + "</h3></p>");
+                out.println("<h3>" + (String)result.getProperty("summoner_name") +" "+ help.getStringFromRegion((String)result.getProperty("region")) + "</h3></p>");
             }
         } catch (EntityNotFoundException e) {
             out.println("<p>No Favorites Saved.</p>");

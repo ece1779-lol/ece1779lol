@@ -22,7 +22,6 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
-import ece1779.appengine.datastore.TransactionsServlet;
 import net.enigmablade.riotapi.*;
 import net.enigmablade.riotapi.constants.*;
 import net.enigmablade.riotapi.exceptions.RiotApiException;
@@ -34,7 +33,8 @@ public class AddSummoner extends HttpServlet {
 	
 	private static final Logger log = Logger.getLogger(AddSummoner.class.getName());
 	
-	private String favorite = "favorites";
+	private String globalFavorites = "globalFavorites";
+	private String userFavoritePrefix = "favorites";
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
@@ -52,7 +52,7 @@ public class AddSummoner extends HttpServlet {
         DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 
         String summonerName = req.getParameter("summonerName");
-        Region region = help.getRegionFromString(req.getParameter("region"));
+        String region = req.getParameter("region");
 
         int retries = 3;
         boolean success = false;
@@ -64,31 +64,43 @@ public class AddSummoner extends HttpServlet {
             try {
                 txn = ds.beginTransaction();
 
-                String keyname = favorite+user.getUserId();
-                Entity favorites;
-                Key boardKey;
+                // Check for favorites for user and create if needed
+                String userFavoritesID = userFavoritePrefix+user.getUserId(); //each user has own favorites list
+                Key userFavoritesKey;
+                Entity userFavoritesEntity;
                 
                 try {
-                    boardKey = KeyFactory.createKey("Favorites", keyname);
-                    favorites = ds.get(boardKey);
+                    userFavoritesKey = KeyFactory.createKey("Favorites", userFavoritesID);
+                    userFavoritesEntity = ds.get(userFavoritesKey);
 
                 } catch (EntityNotFoundException e) {
-                    favorites = new Entity("Favorites", keyname);
-                    favorites.setProperty("count", 0L);
-                    boardKey = ds.put(favorites);
+                    userFavoritesEntity = new Entity("Favorites", userFavoritesID);
+                    userFavoritesEntity.setProperty("count", 0L);
+                    userFavoritesKey = ds.put(userFavoritesEntity);
                 }
 
-                Entity favorite = new Entity("favorite", boardKey);  // set parent child relationship
-                favorite.setProperty("summoner_name", summonerName);
-                favorite.setProperty("region", region.getValue());
-                ds.put(favorite);
+                // Add to favorites if it is not in favorites
+                Key userSummonerKey;
+                Entity summonerEntity;
+                try {
+                	userSummonerKey = KeyFactory.createKey(userFavoritesKey, "summoner", summonerName+region);
+                    summonerEntity = ds.get(userSummonerKey);
+                } catch (EntityNotFoundException e) {
+                    summonerEntity = new Entity("summoner", summonerName+region, userFavoritesKey);  // key is summonername+region
+                    summonerEntity.setProperty("summoner_name", summonerName);
+                    summonerEntity.setProperty("region", region);
+                    ds.put(summonerEntity);
+                    
+                    //TODO : Add to global tracking since it doesnt exist
+                }
+                
 
-                long count = (Long) favorites.getProperty("count");
+                long count = (Long) userFavoritesEntity.getProperty("count");
                 ++count;
-                favorites.setProperty("count", count);
-                ds.put(favorites);
+                userFavoritesEntity.setProperty("count", count);
+                ds.put(userFavoritesEntity);
 
-                log.info("Posting favorite, updating count to " + count +
+                log.info("Posting summoner, updating count to " + count +
                          "; " + retries + " retries remaining");
 
                 txn.commit();
