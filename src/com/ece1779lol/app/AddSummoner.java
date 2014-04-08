@@ -78,10 +78,10 @@ public class AddSummoner extends HttpServlet {
                     boardKey = ds.put(favorites);
                 }
 
-                Entity message = new Entity("favorite", boardKey);  // set parent child relationship
-                message.setProperty("summoner_name", summonerName);
-                message.setProperty("region", region);
-                ds.put(message);
+                Entity favorite = new Entity("favorite", boardKey);  // set parent child relationship
+                favorite.setProperty("summoner_name", summonerName);
+                favorite.setProperty("region", region.getValue());
+                ds.put(favorite);
 
                 long count = (Long) favorites.getProperty("count");
                 ++count;
