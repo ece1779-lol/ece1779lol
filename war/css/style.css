@@ -311,6 +311,31 @@ a.nav:active {
   right: 1em;
 }
 
+table.pretty {
+	margin: 1em 1em 1em 2em;
+	background: whitesmoke;
+	border-collapse: collapse;
+}
+
+table.pretty th, table.pretty td {
+	border: 1px gainsboro solid;
+  	padding: 0.2em;
+}
+
+table.pretty th {
+  	background: gainsboro;
+  	text-align: left;
+}
+
+table.pretty caption {
+	margin-left: inherit;
+	margin-right: inherit;
+}
+
+tbody tr:nth-child(odd) {
+	background-color: #ccc;
+}
+
 footer {
   text-align: center;
 }
