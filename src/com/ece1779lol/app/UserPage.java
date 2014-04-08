@@ -29,41 +29,41 @@ import net.enigmablade.riotapi.types.*;
 
 @SuppressWarnings("serial")
 public class UserPage extends HttpServlet {
-	
+
 	// Hard code the message board name for simplicity.  Could support
-    // multiple boards by getting this from the URL.
+	// multiple boards by getting this from the URL.
 	private String globalFavorites = "globalFavorites";
 	private String userFavoritePrefix = "favorites";
-	
+
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-		
+
 		resp.setContentType("text/html");
 		PrintWriter out = resp.getWriter();
 
-        UserService userService = UserServiceFactory.getUserService();
-        User user = userService.getCurrentUser();
-        
+		UserService userService = UserServiceFactory.getUserService();
+		User user = userService.getCurrentUser();
+
 		out.println("<html>");
 		out.println("  <head><title>Welcome to LOL tracker</title></head>");
 		out.println("  <body>");
-        
-        String navBar;
-        if (user != null) {
-            navBar = "<p>Welcome, " + user.getNickname() + "! You can <a href=\"" +
-                     userService.createLogoutURL("/") +
-                     "\">sign out</a>.</p>";
-        } else {
-            navBar = "<p>Welcome! <a href=\"" + userService.createLoginURL("/userPage") +
-                     "\">Sign in or register</a> to customize.</p>";
-            out.println(navBar);
-    		out.println("  </body>");
-    		out.println("</html>");
-            return;
-        }
-		
-        HelperFunctions help = (HelperFunctions)getServletContext().getAttribute("HelperFunctions");
-        
+
+		String navBar;
+		if (user != null) {
+			navBar = "<p>Welcome, " + user.getNickname() + "! You can <a href=\"" +
+					 userService.createLogoutURL("/") +
+					 "\">sign out</a>.</p>";
+		} else {
+			navBar = "<p>Welcome! <a href=\"" + userService.createLoginURL("/userPage") +
+					 "\">Sign in or register</a> to customize.</p>";
+			out.println(navBar);
+			out.println("  </body>");
+			out.println("</html>");
+			return;
+		}
+
+		HelperFunctions help = (HelperFunctions)getServletContext().getAttribute("HelperFunctions");
+
 		out.println(navBar);
 		out.println("</br>");
 		out.println("<form action='/querySummoner' method='post'>");
@@ -82,46 +82,35 @@ public class UserPage extends HttpServlet {
 		out.println("  </select>");
 		out.println("  <input type='submit' value='Send'>");
 		out.println("</form>");
-		
-        DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 
-        String userFavoritesKeyName = userFavoritePrefix+user.getUserId();
-        
-        // Display information about a message board and its messages.
-        Key userFavoritesKey = KeyFactory.createKey("Favorites", userFavoritesKeyName);
-        out.println("<h1>Tracking Summoners :</h1>");
+		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 
-<<<<<<< HEAD
-            Query q = new Query("favorite", favoriteKey);
-            PreparedQuery pq = ds.prepare(q);
-            for (Entity result : pq.asIterable()) {
-                out.println("<h3>" + (String) result.getProperty("summonerName") + "</h3></p>");
-            }
-        } catch (EntityNotFoundException e) {
-            out.println("<p>No Favorites Saved.</p>");
-        }
-=======
+		String userFavoritesKeyName = userFavoritePrefix+user.getUserId();
+
+		// Display information about a message board and its messages.
+		Key userFavoritesKey = KeyFactory.createKey("Favorites", userFavoritesKeyName);
+		out.println("<h1>Tracking Summoners :</h1>");
+
 		Query q = new Query("summoner_ref", userFavoritesKey);
 		PreparedQuery pq = ds.prepare(q);
 		out.println("<p>Favorites of " + userFavoritesKeyName + " (" + pq.countEntities() + " total):</p>");
 		for (Entity favorite_keys : pq.asIterable()) {
 			String summoner_key = (String)favorite_keys.getProperty("summoner_key");
 			out.println("<h3>"+summoner_key+ "</h3></p>");
-			
+
 			Query q2 = new Query("summoner", KeyFactory.stringToKey(summoner_key));
-		    PreparedQuery pq2 = ds.prepare(q2);
-		    if (pq2.countEntities() != 1)
-		    	out.println("<h1>WE GOT BIG ISSUE</h1>");
-		    for (Entity summoner : pq2.asIterable()) {
-		    	out.println("<p>" + (String)summoner.getProperty("summoner_name") +" "+
-	    					help.getStringFromRegion((String)summoner.getProperty("region")) + "</p>");		    	
-		    }
-		    
-		    //TODO: print games here ...
+			PreparedQuery pq2 = ds.prepare(q2);
+			if (pq2.countEntities() != 1)
+				out.println("<h1>WE GOT BIG ISSUE</h1>");
+			for (Entity summoner : pq2.asIterable()) {
+				out.println("<p>" + (String)summoner.getProperty("summoner_name") +" "+
+							help.getStringFromRegion((String)summoner.getProperty("region")) + "</p>");
+			}
+
+			//TODO: print games here ...
 
 		}
->>>>>>> 1ef015baa0401434186ca8e011b7b0c8d8c9193d
-		
+
 		out.println("  </body>");
 		out.println("</html>");
 	}
