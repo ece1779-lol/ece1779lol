@@ -36,6 +36,15 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	</servlet-mapping>
 
 	<servlet>
+		<servlet-name>QuerySummoner</servlet-name>
+		<servlet-class>com.ece1779lol.app.QuerySummoner</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>QuerySummoner</servlet-name>
+		<url-pattern>/querySummoner</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
 		<servlet-name>UserPage</servlet-name>
 		<servlet-class>com.ece1779lol.app.UserPage</servlet-class>
 	</servlet>
