@@ -53,7 +53,7 @@ public class UserPage extends HttpServlet {
 		HelperFunctions.printLolLogo(out);
 		HelperFunctions.printLolMenu(out, userService, user);
 
-		/* goto sign in menu */
+		/* goto sign in menu if not signed in*/
 		if (user == null) {
 			String navBar = "<nav>Welcome! <a href=\"" + userService.createLoginURL("/userPage") +
 					 "\">Sign in or register</a> to customize.</nav>";
@@ -63,11 +63,13 @@ public class UserPage extends HttpServlet {
 			return;
 		}
 		
-		/* user signed in */
-
 		HelperFunctions help = (HelperFunctions)getServletContext().getAttribute("HelperFunctions");
-		
 		out.println("<div id='container'>");
+		
+		/* Form to query a summoner */
+		out.println("<div class='highlight' id='container elem'>");
+		
+		out.println("<section class='elem elem-green'>");
 		
 		out.println("<form action='/querySummoner' method='post'>");
 		out.println("  <h1 class='content'>Query a Summoner</h1>");
@@ -85,6 +87,13 @@ public class UserPage extends HttpServlet {
 		out.println("  </select>");
 		out.println("  <input type='submit' value='Send'>");
 		out.println("</form>");
+		out.println("</section>");
+		out.println("</div>");
+
+		
+		/* show favorite summoners */
+		out.println("<br>");
+		out.println("<div class='highlight' id='container elem'>");
 
 		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 
@@ -92,7 +101,7 @@ public class UserPage extends HttpServlet {
 
 		// Display information about a message board and its messages.
 		Key userFavoritesKey = KeyFactory.createKey("Favorites", userFavoritesKeyName);
-		out.println("<h1 class='content'>Tracking Summoners :</h1>");
+		out.println("<h1 class='content'>Favorite Summoners :</h1>");
 
 		Query q = new Query("summoner_ref", userFavoritesKey);
 		PreparedQuery pq = ds.prepare(q);
@@ -113,6 +122,7 @@ public class UserPage extends HttpServlet {
 			//TODO: print games here ...
 
 		}
+		out.println("</div>"); /* end of favoirtes div */
 		
 		out.println("</div>"); /* end of container */ 
 
