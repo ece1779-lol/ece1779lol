@@ -95,6 +95,7 @@ public class UserPage extends HttpServlet {
 		/* show favorite summoners */
 		out.println("<br>");
 		out.println("<div class='highlight' id='container elem'>");
+		out.println("<section class='elem elem-green'>");
 
 		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 
@@ -102,7 +103,7 @@ public class UserPage extends HttpServlet {
 
 		// Display information about a message board and its messages.
 		Key userFavoritesKey = KeyFactory.createKey("Favorites", userFavoritesKeyName);
-		out.println("<h1 class='content'>Currently Following :</h1>");
+		out.println("<h1 class='content'>FOLLOWING</h1>");
 
 		Query q = new Query("summoner_ref", userFavoritesKey);
 		PreparedQuery pq = ds.prepare(q);
@@ -132,7 +133,7 @@ public class UserPage extends HttpServlet {
 			}
 
 		}
-		out.println("</div>"); /* end of favoirtes div */
+		out.println("</section></div>"); /* end of favoirtes div */
 		
 		out.println("</div>"); /* end of container */ 
 

@@ -65,6 +65,9 @@ public class QuerySummoner extends HttpServlet {
 		Summoner summoner;
 
 		try {
+			out.println("<div class='highlight' id='container elem'>");
+			out.println("<section class='elem elem-green'>");
+			
 			summoner = client.getSummoner(region, summonerName);
 			out.println("<h1>"+summoner.getName()+" Level :"+summoner.getSummonerLevel());
 
@@ -100,9 +103,13 @@ public class QuerySummoner extends HttpServlet {
 			out.println("  <input class='actionbutton' type='submit' value='Follow'>");
 			out.println("  </form>");
 			out.println("</h1>");
+			out.println("</section></div>");
 			
 			/* Match history table */
 			out.println("<br>");
+			out.println("<div class='highlight' id='container elem'>");
+			out.println("<section class='elem elem-green'>");
+			out.println("<h1 class='content'>Match History</h1>");
 			out.println("<table class='pretty'><tbody>");
 			out.println("<tr><th>Date</th><th>Champion Used</th><th>Game Outcome</th><th>Minutes Played</th>");
 			out.println("<th>Total Gold</th><th>Kills</th><th>Assists</th><th>Deaths</th></tr>");
@@ -138,7 +145,7 @@ public class QuerySummoner extends HttpServlet {
 			} catch (RiotApiException e) {
 				out.println("No GAMES");
 			} finally {
-				out.println("</tbody></table>");
+				out.println("</tbody></table></section></div>");
 			}
 
 		} catch (RiotApiException e) {
