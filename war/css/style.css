@@ -196,7 +196,6 @@ h1.content {
 }
 
 .elem {
-  border: solid  #6AC5AC 3px;
   position: relative;
 }
 
@@ -228,7 +227,6 @@ h1.content {
 }
 
 .elem-green {
-  border: solid #FDC72F 3px;
 }
 .elem-green > .label, .elem-green > .endlabel{
   background-color: #FDC72F;
