@@ -282,9 +282,10 @@ public class HelperFunctions {
 	
 	public static void printLoginPage(PrintWriter out, UserService userService)
 	{
-		String navBar = "<nav>Welcome! <a href=\""+ userService.createLoginURL("/") +
+		String navBar = "<nav style='text-align: center;'>Welcome! <a href=\""+ userService.createLoginURL("/") +
 				"\">Sign in or register</a> to customize.</nav>";
 		out.println(navBar);
+		out.println("  </div>");
 		out.println("  </body>");
 		out.println("</html>");
 		return;

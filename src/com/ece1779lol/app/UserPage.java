@@ -53,7 +53,6 @@ public class UserPage extends HttpServlet {
 		/* goto sign in menu if not signed in*/
 		if (user == null) {
 			HelperFunctions.printLoginPage(out, userService);
-			out.println("</div>");
 			return;
 		}
 		
