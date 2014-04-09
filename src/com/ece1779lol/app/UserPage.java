@@ -85,7 +85,7 @@ public class UserPage extends HttpServlet {
 		out.println("  <option value='las'>L.A. South</option>");
 		out.println("  <option value='oce'>Oceania</option>");
 		out.println("  </select>");
-		out.println("  <input type='submit' value='Send'>");
+		out.println("  <input class='actionbutton' type='submit' value='Go'>");
 		out.println("</form>");
 		out.println("</section>");
 		out.println("</div>");
@@ -120,7 +120,7 @@ public class UserPage extends HttpServlet {
 				out.println("  <form id='addFavorite' name=add_favorite action='/removeSummoner' method='post'>");
 				out.println("  <input type='hidden' name='favoritesKey' value="+KeyFactory.keyToString(favorite_keys.getKey())+">");
 				out.println("  <input type='hidden' name='summonerKey' value="+summoner_key+">");
-				out.println("  <input type='submit' value='Remove from Favorites'>");
+				out.println("  <input class='actionbutton' type='submit' value='Unfollow'>");
 				out.println("  </form>");
 				out.println("</h4>");
 			}

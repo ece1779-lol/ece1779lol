@@ -254,7 +254,7 @@ a.nav:before {
   left: 0;
 }
 
-a.nav {
+a.nav , input.actionbutton {
   background-color: #d64078;
   color: white;
   border-radius: .3em;

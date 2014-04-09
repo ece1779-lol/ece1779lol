@@ -89,7 +89,7 @@ public class QuerySummoner extends HttpServlet {
 			out.println("  <form id='addFavorite' name=add_favorite action='/addSummoner' method='post'>");
 			out.println("  <input type='hidden' name='summonerName' value="+summoner.getName()+">");
 			out.println("  <input type='hidden' name='region' value="+region.getValue()+">");
-			out.println("  <input type='submit' value='Add to Favorite'>");
+			out.println("  <input class='actionbutton' type='submit' value='Follow'>");
 			out.println("  </form>");
 			out.println("</h1>");
 			
