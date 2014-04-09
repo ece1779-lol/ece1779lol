@@ -1,11 +1,19 @@
 package com.ece1779lol.app;
 
 import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.List;
 
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 
+import net.enigmablade.riotapi.RiotApi;
 import net.enigmablade.riotapi.constants.Region;
+import net.enigmablade.riotapi.exceptions.RiotApiException;
+import net.enigmablade.riotapi.types.Champion;
+import net.enigmablade.riotapi.types.Game;
+import net.enigmablade.riotapi.types.Summoner;
 
 public class HelperFunctions {
 	
@@ -37,6 +45,54 @@ public class HelperFunctions {
 		out.println("</div>");
 	}
 	
+	public static void printUserPageStats(PrintWriter out, String summonerName, String region, RiotApi client)
+	{
+		Summoner summoner;
+		Region regionQuery = HelperFunctions.getRegionFromString(region);
+		
+		Game game;
+		out.println("Latest Game");
+		out.println("Game Played On" + "Champion Used" + " Outcome " + " Length " + " Total Gold " + " Kills " + " Deaths " + " Assists ");
+		
+		try {
+			summoner = client.getSummoner(regionQuery, summonerName);
+			
+			List<Game> myMatchHistory = summoner.getMatchHistory();
+			
+			game = myMatchHistory.get(0);
+			
+			DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+			String dateFormatted = formatter.format(game.getPlayedDate());
+			out.println(dateFormatted+" ");
+			
+			Champion champion = game.getChampion();
+			
+			out.println("<img src=\"" +champion.getName()+"_Square_0.png\" height=50 width=50>");
+			out.println(champion.getName()+ " ");
+			
+			if (game.isWin())
+				out.println("Win ");
+			else
+				out.println("Loss ");
+
+			int gameLengthInMinutes = game.getLength() / 60;
+			out.println(gameLengthInMinutes+" "+game.getGoldEarned());
+			
+			out.println(game.getChampionsKilled()+"-"+game.getDeaths()+"-"+game.getAssists());
+			
+			out.println("</br>");
+		}
+		catch (RiotApiException e) {
+			out.println("No GAMES");
+		}
+	
+	}
+	
+	private static Object getServletContext() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	public static void printLolMenu(PrintWriter out, UserService userService, User user)
 	{
 		out.println("<div id='menu'>");

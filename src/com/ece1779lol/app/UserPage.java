@@ -45,6 +45,7 @@ public class UserPage extends HttpServlet {
 
 		resp.setContentType("text/html");
 		PrintWriter out = resp.getWriter();
+		RiotApi client = (RiotApi)getServletContext().getAttribute("RiotClient");
 
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
@@ -101,7 +102,7 @@ public class UserPage extends HttpServlet {
 
 		// Display information about a message board and its messages.
 		Key userFavoritesKey = KeyFactory.createKey("Favorites", userFavoritesKeyName);
-		out.println("<h1 class='content'>Favorite Summoners :</h1>");
+		out.println("<h1 class='content'>Currently Following :</h1>");
 
 		Query q = new Query("summoner_ref", userFavoritesKey);
 		PreparedQuery pq = ds.prepare(q);
@@ -123,9 +124,11 @@ public class UserPage extends HttpServlet {
 				out.println("  <input type='submit' value='Remove from Favorites'>");
 				out.println("  </form>");
 				out.println("</h4>");
-			}
+				
+				HelperFunctions.printUserPageStats(out, (String)summoner.getProperty("summoner_name"), 
+						HelperFunctions.getStringFromRegion((String)summoner.getProperty("region")), client);
 
-			//TODO: print games here ...
+			}
 
 		}
 		out.println("</div>"); /* end of favoirtes div */

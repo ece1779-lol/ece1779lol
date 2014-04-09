@@ -93,7 +93,7 @@ public class QuerySummoner extends HttpServlet {
 			
 
 			out.println("</br>");
-			out.println("Champion Used" + " Outcome " + " Length " + "Total Gold");
+			out.println("Game Played On" + "Champion Used" + " Outcome " + " Length " + " Total Gold " + " Kills " + " Deaths " + " Assists ");
 			out.println("</br>");
 			// Match History
 			try {
@@ -105,9 +105,10 @@ public class QuerySummoner extends HttpServlet {
 					out.println(dateFormatted+" ");
 					
 					Champion champion = game.getChampion();
-
-					out.println(champion.getName()+ " ");
+					
 					out.println("<img src=\"" +champion.getName()+"_Square_0.png\" height=50 width=50>");
+					out.println(champion.getName()+ " ");
+					
 					if (game.isWin())
 						out.println("Win ");
 					else
@@ -116,7 +117,7 @@ public class QuerySummoner extends HttpServlet {
 					int gameLengthInMinutes = game.getLength() / 60;
 					out.println(gameLengthInMinutes+" "+game.getGoldEarned());
 					
-					out.println(game.getChampionsKilled()+" "+game.getAssists()+" "+game.getDeaths());
+					out.println(game.getChampionsKilled()+"-"+game.getDeaths()+"-"+game.getAssists());
 					
 					out.println("</br>");
 				}
