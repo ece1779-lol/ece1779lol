@@ -122,8 +122,7 @@ public class UserPage extends HttpServlet {
 				String region = (String)summoner.getProperty("region");
 				HelperFunctions.printFavoriteSummunerTitle(out, summonerName, region);
 				
-				HelperFunctions.printUserPageStats(out, (String)summoner.getProperty("summoner_name"), 
-						HelperFunctions.getStringFromRegion((String)summoner.getProperty("region")), client);
+				HelperFunctions.printUserPageStats(out, summonerName, region, client);
 
 				out.println("  <td><form id='addFavorite' name=add_favorite action='/removeSummoner' method='post'>");
 				out.println("  <input type='hidden' name='favoritesKey' value="+KeyFactory.keyToString(favorite_keys.getKey())+">");

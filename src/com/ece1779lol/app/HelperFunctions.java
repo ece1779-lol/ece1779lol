@@ -255,11 +255,11 @@ public class HelperFunctions {
 						gameIdEntity.setProperty("gameId", game.getGameId());
 						gameIdEntity.setProperty("isWin", game.isWin());
 						gameIdEntity.setProperty("gameDate", game.getPlayedDate());
-						gameIdEntity.setProperty("gameLength", game.getLength());
-						gameIdEntity.setProperty("goldEarned", game.getGoldEarned());
-						gameIdEntity.setProperty("championsKilled", game.getChampionsKilled());
-						gameIdEntity.setProperty("assists", game.getAssists());
-						gameIdEntity.setProperty("deaths", game.getDeaths());
+						gameIdEntity.setProperty("gameLength", (int)game.getLength());
+						gameIdEntity.setProperty("goldEarned", (int)game.getGoldEarned());
+						gameIdEntity.setProperty("championsKilled", (int)game.getChampionsKilled());
+						gameIdEntity.setProperty("assists", (int)game.getAssists());
+						gameIdEntity.setProperty("deaths", (int)game.getDeaths());
 						
 						Champion champion = game.getChampion();
 						gameIdEntity.setProperty("championName", champion.getName());
@@ -368,14 +368,14 @@ public class HelperFunctions {
 	{
 		if (game == null)
 		{
-			out.println("<td>-</td>"); //date
-			out.println("<td>-</td>"); //champion
-			out.println("<td>-</td>"); //win/lose
-			out.println("<td>-</td>"); //length
-			out.println("<td>-</td>"); //gold
-			out.println("<td>-</td>"); //kills
-			out.println("<td>-</td>"); //assists
-			out.println("<td>-</td>"); //deaths
+			out.println("<td> - </td>"); //date
+			out.println("<td> - </td>"); //champion
+			out.println("<td> - </td>"); //win/lose
+			out.println("<td> - </td>"); //length
+			out.println("<td> - </td>"); //gold
+			out.println("<td> - </td>"); //kills
+			out.println("<td> - </td>"); //assists
+			out.println("<td> - </td>"); //deaths
 		}
 		else
 		{
@@ -390,7 +390,7 @@ public class HelperFunctions {
 			else
 				out.println("<td>Loss</td>");
 	
-			int gameLengthInMinutes = game.getGameLength() / 60;
+			int gameLengthInMinutes = (int)game.getGameLength() / 60;
 			out.println("<td>" + gameLengthInMinutes +"</td>");
 			out.println("<td>" + game.getGoldEarned() +"</td>");
 			out.println("<td>" + game.getChampionsKilled() +"</td>");
@@ -401,17 +401,20 @@ public class HelperFunctions {
 	
 	public static void printUserPageStats(PrintWriter out, String summonerName, String region, RiotApi client)
 	{
+		/*
 		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 		getLatestMatchHistory(ds, summonerName, getRegionFromString(region), client);
 		List<StoredGame> gameList = GetSummonerLastMatchHistory(summonerName, region);
 		if (gameList.isEmpty())
 		{
+			log.info("no last game info for "+summonerName+" "+region);
 			printGameStats(out, null);
 		}
 		else
 		{
 			printGameStats(out, gameList.get(0)); 
 		}
+		*/
 		
 		Summoner summoner;
 		Region regionQuery = getRegionFromString(region);
@@ -447,7 +450,6 @@ public class HelperFunctions {
 		catch (RiotApiException e) {
 			out.println("No GAMES");
 		}
-	
 	}
 
 	public static void printLolMenu(PrintWriter out, UserService userService, User user)

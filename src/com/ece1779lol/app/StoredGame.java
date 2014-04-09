@@ -12,11 +12,11 @@ public class StoredGame
 	private long gameId;
 	private boolean isWin;
 	private Date gameDate;
-	private int gameLength;
-	private int goldEarned;
-	private int championsKilled;
-	private int assists;
-	private int deaths;
+	private long gameLength;
+	private long goldEarned;
+	private long championsKilled;
+	private long assists;
+	private long deaths;
 	private String championName;
 	
 	
@@ -26,11 +26,11 @@ public class StoredGame
 		this.gameId = (long)properties.get("gameId");
 		this.isWin = (boolean)properties.get("isWin");
 		this.gameDate = (Date)properties.get("gameDate");
-		this.gameLength = (int)properties.get("gameLength");
-		this.goldEarned = (int)properties.get("goldEarned");
-		this.championsKilled = (int)properties.get("championsKilled");
-		this.assists = (int)properties.get("assists");
-		this.deaths = (int)properties.get("deaths");
+		this.gameLength = (long)properties.get("gameLength");
+		this.goldEarned = (long)properties.get("goldEarned");
+		this.championsKilled = (long)properties.get("championsKilled");
+		this.assists = (long)properties.get("assists");
+		this.deaths = (long)properties.get("deaths");
 		this.championName = (String)properties.get("championName");
 	}
 
@@ -55,27 +55,27 @@ public class StoredGame
 	}
 
 
-	public int getGameLength() {
+	public long getGameLength() {
 		return gameLength;
 	}
 
 
-	public int getGoldEarned() {
+	public long getGoldEarned() {
 		return goldEarned;
 	}
 
 
-	public int getChampionsKilled() {
+	public long getChampionsKilled() {
 		return championsKilled;
 	}
 
 
-	public int getAssists() {
+	public long getAssists() {
 		return assists;
 	}
 
 
-	public int getDeaths() {
+	public long getDeaths() {
 		return deaths;
 	}
 
