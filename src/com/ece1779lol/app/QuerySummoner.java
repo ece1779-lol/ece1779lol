@@ -97,7 +97,7 @@ public class QuerySummoner extends HttpServlet {
 			out.println("<br>");
 			out.println("<table class='pretty'><tbody>");
 			out.println("<tr><th>Date</th><th>Champion Used</th><th>Game Outcome</th><th>Minutes Played</th>");
-			out.println("<th>Total Gold</th><th>Kills</th><th>Assists</th><th>Deaths</th></tr>");
+			out.println("<th>Total Gold</th><th>Kills</th><th>Assists</th><th>Deaths</th></tr>");
 			// Match History
 			try {
 				List<Game> myMatchHistory = summoner.getMatchHistory();
@@ -112,6 +112,7 @@ public class QuerySummoner extends HttpServlet {
 					Champion champion = game.getChampion();
 
 					out.println("<td>" + "<img src=\"" +champion.getName()+"_Square_0.png\" height=50 width=50> " + champion.getName() +"</td>");
+
 					if (game.isWin())
 						out.println("<td>Win</td>");
 					else
@@ -119,9 +120,7 @@ public class QuerySummoner extends HttpServlet {
 
 					int gameLengthInMinutes = game.getLength() / 60;
 					out.println("<td>" + gameLengthInMinutes +"</td>");
-					
 					out.println("<td>" + game.getGoldEarned() +"</td>");
-					
 					out.println("<td>" + game.getChampionsKilled() +"</td>");
 					out.println("<td>" + game.getAssists() +"</td>");
 					out.println("<td>" + game.getDeaths() +"</td>");

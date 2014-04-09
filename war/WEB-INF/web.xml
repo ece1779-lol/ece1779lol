@@ -12,7 +12,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 		<!-- Replace with AWS key for your account -->
 		<init-param>
 			<param-name>RiotKey</param-name>
-			<param-value>mykey</param-value>
+			<param-value>b8b60732-1cd6-43b1-a207-f0747160445a</param-value>
 		</init-param>
 		
 		<init-param>
