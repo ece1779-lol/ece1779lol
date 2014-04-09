@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import com.google.appengine.api.datastore.*;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 
@@ -26,6 +27,212 @@ public class HelperFunctions {
 	public static String userFavoritePrefix = "userFavorites_";
 	public static String gameEntityStr = "lol_game";
 	
+
+	public static boolean isFavoriteAlready(DatastoreService ds, String userId, String summonerName, Region region)
+	{
+		String regionName = region.getValue();
+		Key userSummonerKey = getUserSummonerKey(userId, summonerName, regionName);
+		try {
+			//Check if it exists or not
+			ds.get(userSummonerKey);
+			return true;
+
+		} catch(EntityNotFoundException e) {
+			return false;
+		}
+	}
+	
+	//Retrieves key of summoner from global favorites or adds it
+	public static String addToFavorites(DatastoreService ds, String userId, String summonerName, Region region)
+	{
+		// Get/Create Global Favorites
+		Key globalFavoritesKey;
+		Entity globalFavoritesEntity;
+
+		try {
+			globalFavoritesKey = getGlobalFavoritesKey();
+			globalFavoritesEntity = ds.get(globalFavoritesKey);
+
+		} catch (EntityNotFoundException e) {
+			globalFavoritesEntity = getGlobalFavoritesEntity();
+			globalFavoritesEntity.setProperty("count", 0L);
+			globalFavoritesKey = ds.put(globalFavoritesEntity);
+		}
+
+		// Get/Create User Favorites. Each user has own favorites list
+		String userFavoritesID = getUserFavoritesStr(userId); //ID is prefix and google ID
+		Key userFavoritesKey;
+		Entity userFavoritesEntity;
+
+		try {
+			userFavoritesKey = KeyFactory.createKey("Favorites", userFavoritesID);
+			userFavoritesEntity = ds.get(userFavoritesKey);
+
+		} catch (EntityNotFoundException e) {
+			userFavoritesEntity = new Entity("Favorites", userFavoritesID);
+			userFavoritesEntity.setProperty("count", 0L);
+			userFavoritesKey = ds.put(userFavoritesEntity);
+		}
+
+
+		// Get/Create global summoner properties
+		String favoritesEntryName = getGlobalSummonerStr(summonerName, region.getValue());   // key is summonername+region
+		Key favoritesEntryKey, userSummonerKey;
+		Entity favoritesEntryEntity, userSummonerEntity;
+		String globalSummonerKeyStr;
+		String userSummonerName = getUserSummonerStr(userId, summonerName, region.getValue());
+
+		try {
+			long refcount;
+			favoritesEntryKey = getGlobalSummonerKey(summonerName, region.getValue());
+			KeyFactory.createKey(globalFavoritesKey, "summoner", favoritesEntryName);
+			favoritesEntryEntity = ds.get(favoritesEntryKey);
+
+			globalSummonerKeyStr = KeyFactory.keyToString(favoritesEntryEntity.getKey());
+			
+			userSummonerKey = KeyFactory.createKey(userFavoritesKey, "summoner_ref", userSummonerName);
+
+			try {
+				//Check if it exists in user favorites and move on if it already exists
+				userSummonerEntity = ds.get(userSummonerKey);
+
+			} catch(EntityNotFoundException e) {
+				//If not then increment refcount and create new one
+				refcount = (Long) favoritesEntryEntity.getProperty("refcount");
+				++refcount;
+				favoritesEntryEntity.setProperty("refcount", refcount);
+				ds.put(favoritesEntryEntity);
+
+				userSummonerEntity = new Entity("summoner_ref", userSummonerName, userFavoritesKey);
+				userSummonerEntity.setProperty("summoner_key", globalSummonerKeyStr);
+				userSummonerKey = ds.put(userSummonerEntity);
+			}
+
+
+		} catch (EntityNotFoundException e) {
+			favoritesEntryEntity = new Entity("summoner", favoritesEntryName, globalFavoritesKey);
+			favoritesEntryEntity.setProperty("summoner_name", summonerName);
+			favoritesEntryEntity.setProperty("region", region.getValue());
+			favoritesEntryEntity.setProperty("refcount", 1L);
+			favoritesEntryKey = ds.put(favoritesEntryEntity);
+
+			globalSummonerKeyStr = KeyFactory.keyToString(favoritesEntryKey);
+
+			userSummonerEntity = new Entity("summoner_ref", userSummonerName, userFavoritesKey);
+			userSummonerEntity.setProperty("summoner_key", globalSummonerKeyStr);
+			userSummonerKey = ds.put(userSummonerEntity);
+		}
+
+		return globalSummonerKeyStr;
+	}
+
+	public static void RemoveGlobalFavorites(DatastoreService ds, String summonerKeyStr)
+	{
+		Entity globalFavoritesEntity;
+		Key summonerKey = KeyFactory.stringToKey(summonerKeyStr);
+		
+		try {
+			globalFavoritesEntity = ds.get(summonerKey);
+			long refcount = (long)globalFavoritesEntity.getProperty("refcount");
+			//decrease refcount to track multiusers
+			if (refcount > 1)
+			{
+				--refcount;
+				globalFavoritesEntity.setProperty("refcount", refcount);
+				ds.put(globalFavoritesEntity);
+			}
+			else
+			{
+				//If last reference then delete entry and also delete game history
+				ds.delete(summonerKey);
+				
+				Query q = new Query(gameEntityStr);
+				q.setFilter(new FilterPredicate("summoner_key",
+						Query.FilterOperator.EQUAL,
+						summonerKeyStr));
+				
+				// Perform the query.
+				PreparedQuery pq = ds.prepare(q);
+				for (Entity gameEntity : pq.asIterable()) {
+					ds.delete(gameEntity.getKey());
+				}
+			}
+		} catch (EntityNotFoundException e) {
+			log.info("Couldn't find global favorites summoner");
+			// TODO: something really bad going on!
+			return;
+		}
+	}
+	
+	public static void printLastMatchHistory()
+	{
+		
+	}
+	
+	public static void printMatchHistory()
+	{
+		
+	}
+	
+	public static void addMatchHistory(DatastoreService ds, String globalSummonerKey, String summonerName, Region region, RiotApi client)
+	{
+		Summoner summoner;
+
+		try {
+			summoner = client.getSummoner(region, summonerName);
+
+			try {
+				List<Game> myMatchHistory = summoner.getMatchHistory();
+				for (Game game : myMatchHistory)
+				{
+					Key GamesKey;
+					Entity GamesEntity;
+					try {
+						GamesKey = KeyFactory.createKey("Games", globalGames);
+						GamesEntity = ds.get(GamesKey);
+
+					} catch (EntityNotFoundException e) {
+						GamesEntity = new Entity("Games", globalGames);
+						GamesKey = ds.put(GamesEntity);
+					}
+
+					String gameIdName = getGameIDName(game.getGameId(), globalSummonerKey);
+					Key gameIdKey;
+					Entity gameIdEntity;
+					try {
+						gameIdKey = KeyFactory.createKey(GamesKey, gameEntityStr, gameIdName);
+						gameIdEntity = ds.get(gameIdKey);
+
+						//game exists in DB, hence no longer need to store more of the history
+						break;
+					} catch (EntityNotFoundException e) {
+						//game doesnt exist, add it to DB
+						gameIdEntity = new Entity(gameEntityStr, gameIdName, GamesKey);
+						gameIdEntity.setProperty("summoner_key", globalSummonerKey);
+						gameIdEntity.setProperty("gameId", game.getGameId());
+						gameIdEntity.setProperty("isWin", game.isWin());
+						gameIdEntity.setProperty("gameDate", game.getPlayedDate());
+						gameIdEntity.setProperty("gameLength", game.getLength());
+						gameIdEntity.setProperty("goldEarned", game.getGoldEarned());
+						gameIdEntity.setProperty("championsKilled", game.getChampionsKilled());
+						gameIdEntity.setProperty("assists", game.getAssists());
+						gameIdEntity.setProperty("deaths", game.getDeaths());
+						
+						Champion champion = game.getChampion();
+						gameIdEntity.setProperty("championName", champion.getName());
+
+						gameIdKey = ds.put(gameIdEntity);
+					}
+				}
+			} catch (RiotApiException e) {
+				log.info("No match history found");
+			}
+
+		} catch (RiotApiException e) {
+			log.info(summonerName+" is invalid summoner ID");
+		}
+	}
+	
 	public static Key getGlobalFavoritesKey()
 	{
 		return KeyFactory.createKey("Favorites", globalFavorites);
@@ -39,6 +246,33 @@ public class HelperFunctions {
 	public static String getUserFavoritesStr(String userId)
 	{
 		return userFavoritePrefix+userId;
+	}
+	
+	public static Key getUserFavoritesKey(String userId)
+	{
+		return KeyFactory.createKey("Favorites", getUserFavoritesStr(userId));
+	}
+	
+	public static Key getGlobalSummonerKey(String summonerName, String region)
+	{
+		Key globalFavoritesKey = getGlobalFavoritesKey();
+		return KeyFactory.createKey(globalFavoritesKey, "summoner", getGlobalSummonerStr(summonerName, region));
+	}
+	
+	public static Key getUserSummonerKey(String userId, String summonerName, String regionName)
+	{
+		return KeyFactory.createKey(getUserFavoritesKey(userId), "summoner_ref", getUserSummonerStr(userId, summonerName, regionName));
+	}
+	
+	
+	public static String getGlobalSummonerStr(String summonerName, String region)
+	{
+		return summonerName+region;    // key is summonername+region
+	}
+	
+	public static String getUserSummonerStr(String userId, String summonerName, String region)
+	{
+		return userId+summonerName+region;    // key is userid+summonername+region
 	}
 	
 	public static String getGameIDName(long gameId, String globalSummonerKeyStr)
@@ -95,7 +329,7 @@ public class HelperFunctions {
 	public static void printUserPageStats(PrintWriter out, String summonerName, String region, RiotApi client)
 	{
 		Summoner summoner;
-		Region regionQuery = HelperFunctions.getRegionFromString(region);
+		Region regionQuery = getRegionFromString(region);
 		
 		Game game;
 		
@@ -129,11 +363,6 @@ public class HelperFunctions {
 			out.println("No GAMES");
 		}
 	
-	}
-	
-	private static Object getServletContext() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	public static void printLolMenu(PrintWriter out, UserService userService, User user)

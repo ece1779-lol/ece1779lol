@@ -2,19 +2,11 @@ package com.ece1779lol.app;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.servlet.http.*;
 
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.EntityNotFoundException;
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.*;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.users.User;
@@ -97,7 +89,7 @@ public class UserPage extends HttpServlet {
 
 		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 
-		String userFavoritesKeyName = HelperFunctions.userFavoritePrefix+user.getUserId();
+		String userFavoritesKeyName = HelperFunctions.getUserFavoritesStr(user.getUserId());
 
 		// Display information about a message board and its messages.
 		Key userFavoritesKey = KeyFactory.createKey("Favorites", userFavoritesKeyName);

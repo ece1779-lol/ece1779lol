@@ -8,9 +8,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.servlet.http.*;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -23,6 +26,8 @@ import net.enigmablade.riotapi.types.*;
 @SuppressWarnings("serial")
 public class QuerySummoner extends HttpServlet {
 
+	private static final Logger log = Logger.getLogger(QuerySummoner.class.getName());
+	
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		resp.sendRedirect("/");
@@ -43,6 +48,7 @@ public class QuerySummoner extends HttpServlet {
 		{
 			out.println("<h1>Invalid Params</h1>");
 			out.println("<a href=\"/\">Return to home page.</a></p>");
+			return;
 		}
 		
 		Region region = HelperFunctions.getRegionFromString(regionName);
@@ -93,18 +99,32 @@ public class QuerySummoner extends HttpServlet {
 				}
 				else
 				{
+					log.info("No League Info");
 					//out.println("No League Info");
 				}
 
 			} catch (RiotApiException e) {
-				//out.println("No League Info");
+				log.info("RiotApiException encountered");
 			}
 			
-			out.println("  <form id='addFavorite' name=add_favorite action='/addSummoner' method='post'>");
-			out.println("  <input type='hidden' name='summonerName' value="+summoner.getName()+">");
-			out.println("  <input type='hidden' name='region' value="+region.getValue()+">");
-			out.println("  <input class='actionbutton' type='submit' value='Follow'>");
-			out.println("  </form>");
+			DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+			
+			if ( HelperFunctions.isFavoriteAlready(ds, user.getUserId(), summoner.getName(), region) )
+			{
+				out.println("  <form id='removeFavorite' name=remove_favorite action='/removeSummoner' method='post'>");
+				out.println("  <input type='hidden' name='summonerName' value="+summoner.getName()+">");
+				out.println("  <input type='hidden' name='region' value="+region.getValue()+">");
+				out.println("  <input class='actionbutton' type='submit' value='UnFollow'>");
+				out.println("  </form>");
+			}
+			else
+			{
+				out.println("  <form id='addFavorite' name=add_favorite action='/addSummoner' method='post'>");
+				out.println("  <input type='hidden' name='summonerName' value="+summoner.getName()+">");
+				out.println("  <input type='hidden' name='region' value="+region.getValue()+">");
+				out.println("  <input class='actionbutton' type='submit' value='Follow'>");
+				out.println("  </form>");
+			}
 			out.println("</h1>");
 			out.println("</section></div>");
 			

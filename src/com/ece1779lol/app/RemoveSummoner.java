@@ -25,45 +25,6 @@ public class RemoveSummoner extends HttpServlet {
 	
 	private static final Logger log = Logger.getLogger(RemoveSummoner.class.getName());
 	
-	private void RemoveGlobalFavorites(DatastoreService ds, String summonerKeyStr)
-	{
-		Entity globalFavoritesEntity;
-		Key summonerKey = KeyFactory.stringToKey(summonerKeyStr);
-		
-		try {
-			globalFavoritesEntity = ds.get(summonerKey);
-			long refcount = (long)globalFavoritesEntity.getProperty("refcount");
-			//decrease refcount to track multiusers
-			if (refcount > 1)
-			{
-				--refcount;
-				globalFavoritesEntity.setProperty("refcount", refcount);
-				ds.put(globalFavoritesEntity);
-			}
-			else
-			{
-				//If last reference then delete entry and also delete game history
-				ds.delete(summonerKey);
-				
-				Query q = new Query(HelperFunctions.gameEntityStr);
-				q.setFilter(new FilterPredicate("summoner_key",
-						Query.FilterOperator.EQUAL,
-						summonerKeyStr));
-				
-				// Perform the query.
-				PreparedQuery pq = ds.prepare(q);
-				for (Entity gameEntity : pq.asIterable()) {
-					ds.delete(gameEntity.getKey());
-				}
-			}
-		} catch (EntityNotFoundException e) {
-			log.info("Couldn't find global favorites summoner");
-			// TODO: something really bad going on!
-			return;
-		}
-	}
-	
-
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		resp.sendRedirect("/");
@@ -78,7 +39,10 @@ public class RemoveSummoner extends HttpServlet {
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
 		
-		HelperFunctions.printLolHeader(out, "Query LOL Summoner");
+		String summonerName = req.getParameter("summonerName");
+		String regionName = req.getParameter("region");
+		
+		HelperFunctions.printLolHeader(out, "Unfollow Summoner");
 		out.println("<body>");
 		HelperFunctions.printLolLogo(out);
 		HelperFunctions.printLolMenu(out, userService, user);
@@ -94,6 +58,21 @@ public class RemoveSummoner extends HttpServlet {
 		String userFavoriteKeyStr = req.getParameter("favoritesKey");
 		String globalSummonerKeyStr = req.getParameter("summonerKey");
 
+		if (userFavoriteKeyStr == null && globalSummonerKeyStr == null)
+		{
+			if (summonerName == null && regionName == null)
+			{
+				out.println("<h1>Invalid Params</h1>");
+				out.println("<a href=\"/\">Return to home page.</a></p>");
+				return;
+			}
+			else
+			{
+				globalSummonerKeyStr = KeyFactory.keyToString(HelperFunctions.getGlobalSummonerKey(summonerName, regionName));
+				userFavoriteKeyStr = KeyFactory.keyToString(HelperFunctions.getUserSummonerKey(user.getUserId(), summonerName, regionName));
+			}
+		}
+		
 		int retries = 3;
 		boolean success = false;
 		
@@ -108,7 +87,7 @@ public class RemoveSummoner extends HttpServlet {
 				Key userFavoriteKey = KeyFactory.stringToKey(userFavoriteKeyStr);
 				ds.delete(userFavoriteKey);
 				
-				RemoveGlobalFavorites(ds, globalSummonerKeyStr);
+				HelperFunctions.RemoveGlobalFavorites(ds, globalSummonerKeyStr);
 
 				txn.commit();
 
