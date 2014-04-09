@@ -100,11 +100,10 @@ public class QuerySummoner extends HttpServlet {
 				else
 				{
 					log.info("No League Info");
-					//out.println("No League Info");
 				}
 
 			} catch (RiotApiException e) {
-				log.info("RiotApiException encountered");
+				log.info("RiotApiException encountered while retrieving league data");
 			}
 			
 			DatastoreService ds = DatastoreServiceFactory.getDatastoreService();

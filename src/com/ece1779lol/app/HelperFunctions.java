@@ -213,13 +213,16 @@ public class HelperFunctions {
 		return gameList;
 	}
 	
-	public static void getLatestMatchHistory(DatastoreService ds, String globalSummonerKey, String summonerName, Region region, RiotApi client)
+	public static void getLatestMatchHistory(DatastoreService ds, String summonerName, Region region, RiotApi client)
 	{
 		Summoner summoner;
 
 		try {
 			summoner = client.getSummoner(region, summonerName);
-
+			
+			Key globalSummonerKey = getGlobalSummonerKey(summonerName, region.getValue());
+			String globalSummonerKeyStr = KeyFactory.keyToString(globalSummonerKey);
+			
 			try {
 				List<Game> myMatchHistory = summoner.getMatchHistory();
 				for (Game game : myMatchHistory)
@@ -235,7 +238,8 @@ public class HelperFunctions {
 						GamesKey = ds.put(GamesEntity);
 					}
 
-					String gameIdName = getGameIDName(game.getGameId(), globalSummonerKey);
+
+					String gameIdName = getGameIDName(game.getGameId(), globalSummonerKeyStr);
 					Key gameIdKey;
 					Entity gameIdEntity;
 					try {
@@ -264,11 +268,11 @@ public class HelperFunctions {
 					}
 				}
 			} catch (RiotApiException e) {
-				log.info("No match history found");
+				log.info("No match history found for "+summonerName);
 			}
 
 		} catch (RiotApiException e) {
-			log.info(summonerName+" is invalid summoner ID");
+			log.info(summonerName+" summoner ID is not found");
 		}
 	}
 	
@@ -360,8 +364,55 @@ public class HelperFunctions {
 		out.println("<td>" + region.toUpperCase() + "</td>");
 	}
 	
+	public static void printGameStats(PrintWriter out, StoredGame game)
+	{
+		if (game == null)
+		{
+			out.println("<td>-</td>"); //date
+			out.println("<td>-</td>"); //champion
+			out.println("<td>-</td>"); //win/lose
+			out.println("<td>-</td>"); //length
+			out.println("<td>-</td>"); //gold
+			out.println("<td>-</td>"); //kills
+			out.println("<td>-</td>"); //assists
+			out.println("<td>-</td>"); //deaths
+		}
+		else
+		{
+			DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+			String dateFormatted = formatter.format(game.getGameDate());
+			out.println("<td>" + dateFormatted + "</td>");
+			
+			out.println("<td>" + "<img src=\"" +game.getChampionName()+"_Square_0.png\" height=50 width=50> " + game.getChampionName() +"</td>");
+			
+			if (game.isWin())
+				out.println("<td>Win</td>");
+			else
+				out.println("<td>Loss</td>");
+	
+			int gameLengthInMinutes = game.getGameLength() / 60;
+			out.println("<td>" + gameLengthInMinutes +"</td>");
+			out.println("<td>" + game.getGoldEarned() +"</td>");
+			out.println("<td>" + game.getChampionsKilled() +"</td>");
+			out.println("<td>" + game.getAssists() +"</td>");
+			out.println("<td>" + game.getDeaths() +"</td>");
+		}
+	}
+	
 	public static void printUserPageStats(PrintWriter out, String summonerName, String region, RiotApi client)
 	{
+		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+		getLatestMatchHistory(ds, summonerName, getRegionFromString(region), client);
+		List<StoredGame> gameList = GetSummonerLastMatchHistory(summonerName, region);
+		if (gameList.isEmpty())
+		{
+			printGameStats(out, null);
+		}
+		else
+		{
+			printGameStats(out, gameList.get(0)); 
+		}
+		
 		Summoner summoner;
 		Region regionQuery = getRegionFromString(region);
 		
