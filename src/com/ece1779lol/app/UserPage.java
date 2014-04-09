@@ -55,14 +55,15 @@ public class UserPage extends HttpServlet {
 		out.println("  <body>");
 		HelperFunctions.printLolLogo(out);
 		HelperFunctions.printLolMenu(out, userService, user);
+		
+		out.println("<div id='container'>");
 
 		/* goto sign in menu if not signed in*/
 		if (user == null) {
 			HelperFunctions.printLoginPage(out, userService);
+			out.println("</div>");
 			return;
 		}
-		
-		out.println("<div id='container'>");
 		
 		/* Form to query a summoner */
 		out.println("<div class='highlight' id='container elem'>");
@@ -100,11 +101,19 @@ public class UserPage extends HttpServlet {
 
 		// Display information about a message board and its messages.
 		Key userFavoritesKey = KeyFactory.createKey("Favorites", userFavoritesKeyName);
-		out.println("<h1 class='content'>FOLLOWING</h1>");
+		out.println("<h1 class='content'>Followed Summoners Last Game</h1>");
 
 		Query q = new Query("summoner_ref", userFavoritesKey);
 		PreparedQuery pq = ds.prepare(q);
 		//out.println("<p>Favorites of " + userFavoritesKeyName + " (" + pq.countEntities() + " total):</p>");
+		
+		/* print summoners table header */
+		out.println("<table class='pretty'><tbody>");
+		out.println("<tr>");
+		out.println("<th>Summoner</th><th>Region</th>");
+		out.println("<th>Date</th><th>Champion</th><th>Outcome</th><th>Minutes</th>");
+		out.println("<th>Gold</th><th>Kills</th><th>Assists</th><th>Deaths</th><th></th>");
+		out.println("</tr>");
 		
 		for (Entity favorite_keys : pq.asIterable()) {
 
@@ -113,23 +122,29 @@ public class UserPage extends HttpServlet {
 			PreparedQuery pq2 = ds.prepare(q2);
 			if (pq2.countEntities() != 1)
 				out.println("<h1>WE GOT BIG ISSUE</h1>");
+
 			for (Entity summoner : pq2.asIterable()) {
+				
+				out.println("<tr>");
+
 				String summonerName = (String)summoner.getProperty("summoner_name");
 				String region = (String)summoner.getProperty("region");
 				HelperFunctions.printFavoriteSummunerTitle(out, summonerName, region);
-				out.println("  <form id='addFavorite' name=add_favorite action='/removeSummoner' method='post'>");
-				out.println("  <input type='hidden' name='favoritesKey' value="+KeyFactory.keyToString(favorite_keys.getKey())+">");
-				out.println("  <input type='hidden' name='summonerKey' value="+summoner_key+">");
-				out.println("  <input class='actionbutton' type='submit' value='Unfollow'>");
-				out.println("  </form>");
-				out.println("</h4>");
 				
 				HelperFunctions.printUserPageStats(out, (String)summoner.getProperty("summoner_name"), 
 						HelperFunctions.getStringFromRegion((String)summoner.getProperty("region")), client);
 
+				out.println("  <td><form id='addFavorite' name=add_favorite action='/removeSummoner' method='post'>");
+				out.println("  <input type='hidden' name='favoritesKey' value="+KeyFactory.keyToString(favorite_keys.getKey())+">");
+				out.println("  <input type='hidden' name='summonerKey' value="+summoner_key+">");
+				out.println("  <input class='actionbutton' style='width: inherit;' type='submit' value='Unfollow'>");
+				out.println("  </form></td>");
+				
+				out.println("</tr>");
 			}
 
 		}
+		out.println("</tbody></table>"); /* table */
 		out.println("</section></div>"); /* end of favoirtes div */
 		
 		out.println("</div>"); /* end of container */ 

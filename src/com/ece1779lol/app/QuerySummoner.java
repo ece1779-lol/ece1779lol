@@ -114,8 +114,8 @@ public class QuerySummoner extends HttpServlet {
 			out.println("<section class='elem elem-green'>");
 			out.println("<h1 class='content'>Match History</h1>");
 			out.println("<table class='pretty'><tbody>");
-			out.println("<tr><th>Date</th><th>Champion Used</th><th>Game Outcome</th><th>Minutes Played</th>");
-			out.println("<th>Total Gold</th><th>Kills</th><th>Assists</th><th>Deaths</th></tr>");
+			out.println("<tr><th>Date</th><th>Champion</th><th>Outcome</th><th>Minutes</th>");
+			out.println("<th>Gold</th><th>Kills</th><th>Assists</th><th>Deaths</th></tr>");
 			// Match History
 			try {
 				List<Game> myMatchHistory = summoner.getMatchHistory();

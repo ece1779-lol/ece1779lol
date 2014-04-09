@@ -84,11 +84,12 @@ public class HelperFunctions {
 		out.println("</form>");
 		out.println("<a href='javascript:;' onclick='javascript:document.getElementById("+formId+").submit()'><h4>"+summonerName+" "+region+"</h4></a>");
 		*/
-		out.println("<form name="+formId+" method='post' action='/querySummoner'>");
+		out.println("<td><form name="+formId+" method='post' action='/querySummoner'>");
 		out.println("<input type='hidden' name='summonerName' value="+summonerName+">");
 		out.println("<input type='hidden' name='region' value="+getStringFromRegion(region)+" />");
-		out.println("<a href='javascript:document."+formId+".submit()'><h4>"+summonerName+" "+region+"</h4></a>");
-		out.println("</form>");
+		out.println("<a href='javascript:document."+formId+".submit()'><h4>"+summonerName+"</h4></a>");
+		out.println("</form></td>");
+		out.println("<td>" + region.toUpperCase() + "</td>");
 	}
 	
 	public static void printUserPageStats(PrintWriter out, String summonerName, String region, RiotApi client)
@@ -97,8 +98,6 @@ public class HelperFunctions {
 		Region regionQuery = HelperFunctions.getRegionFromString(region);
 		
 		Game game;
-		out.println("Latest Game");
-		out.println("Game Played On" + "Champion Used" + " Outcome " + " Length " + " Total Gold " + " Kills " + " Deaths " + " Assists ");
 		
 		try {
 			summoner = client.getSummoner(regionQuery, summonerName);
@@ -109,24 +108,22 @@ public class HelperFunctions {
 			
 			DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 			String dateFormatted = formatter.format(game.getPlayedDate());
-			out.println(dateFormatted+" ");
+			out.println("<td>" + dateFormatted + "</td>");
 			
 			Champion champion = game.getChampion();
-			
-			out.println("<img src=\"" +champion.getName()+"_Square_0.png\" height=50 width=50>");
-			out.println(champion.getName()+ " ");
+			out.println("<td>" + "<img src=\"" +champion.getName()+"_Square_0.png\" height=50 width=50> " + champion.getName() +"</td>");
 			
 			if (game.isWin())
-				out.println("Win ");
+				out.println("<td>Win</td>");
 			else
-				out.println("Loss ");
+				out.println("<td>Loss</td>");
 
 			int gameLengthInMinutes = game.getLength() / 60;
-			out.println(gameLengthInMinutes+" "+game.getGoldEarned());
-			
-			out.println(game.getChampionsKilled()+"-"+game.getDeaths()+"-"+game.getAssists());
-			
-			out.println("</br>");
+			out.println("<td>" + gameLengthInMinutes +"</td>");
+			out.println("<td>" + game.getGoldEarned() +"</td>");
+			out.println("<td>" + game.getChampionsKilled() +"</td>");
+			out.println("<td>" + game.getAssists() +"</td>");
+			out.println("<td>" + game.getDeaths() +"</td>");
 		}
 		catch (RiotApiException e) {
 			out.println("No GAMES");
