@@ -47,6 +47,8 @@ public class QuerySummoner extends HttpServlet {
 			return;
 		}
 		
+		out.println("<div id='container'>");
+		
 		RiotApi client = (RiotApi)getServletContext().getAttribute("RiotClient");
 
 		Summoner summoner;
@@ -91,44 +93,51 @@ public class QuerySummoner extends HttpServlet {
 			out.println("  </form>");
 			out.println("</h1>");
 			
-
-			out.println("</br>");
-			out.println("Game Played On" + "Champion Used" + " Outcome " + " Length " + " Total Gold " + " Kills " + " Deaths " + " Assists ");
-			out.println("</br>");
+			/* Match history table */
+			out.println("<br>");
+			out.println("<table class='pretty'><tbody>");
+			out.println("<tr><th>Date</th><th>Champion Used</th><th>Game Outcome</th><th>Minutes Played</th>");
+			out.println("<th>Total Gold</th><th>Kills</th><th>Assists</th><th>Deaths</th></tr>");
 			// Match History
 			try {
 				List<Game> myMatchHistory = summoner.getMatchHistory();
 				for (Game game : myMatchHistory)
 				{
+					out.println("<tr>");
+
 					DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 					String dateFormatted = formatter.format(game.getPlayedDate());
-					out.println(dateFormatted+" ");
+					out.println("<td>" + dateFormatted +"</td>");
 					
 					Champion champion = game.getChampion();
-					
-					out.println("<img src=\"" +champion.getName()+"_Square_0.png\" height=50 width=50>");
-					out.println(champion.getName()+ " ");
-					
+
+					out.println("<td>" + "<img src=\"" +champion.getName()+"_Square_0.png\" height=50 width=50> " + champion.getName() +"</td>");
+
 					if (game.isWin())
-						out.println("Win ");
+						out.println("<td>Win</td>");
 					else
-						out.println("Loss ");
+						out.println("<td>Loss</td>");
 
 					int gameLengthInMinutes = game.getLength() / 60;
-					out.println(gameLengthInMinutes+" "+game.getGoldEarned());
+					out.println("<td>" + gameLengthInMinutes +"</td>");
+					out.println("<td>" + game.getGoldEarned() +"</td>");
+					out.println("<td>" + game.getChampionsKilled() +"</td>");
+					out.println("<td>" + game.getAssists() +"</td>");
+					out.println("<td>" + game.getDeaths() +"</td>");
 					
-					out.println(game.getChampionsKilled()+"-"+game.getDeaths()+"-"+game.getAssists());
-					
-					out.println("</br>");
+					out.println("</tr>");
 				}
 			} catch (RiotApiException e) {
 				out.println("No GAMES");
+			} finally {
+				out.println("</tbody></table>");
 			}
 
 		} catch (RiotApiException e) {
 			out.println(summonerName+" is invalid summoner ID");
 			out.println("<a href=\"/\">Return to home page.</a></p>");
 		} finally {
+			out.println("</div>");
 			out.println("</body>");
 		}
 	}
