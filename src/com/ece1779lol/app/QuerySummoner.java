@@ -69,7 +69,8 @@ public class QuerySummoner extends HttpServlet {
 			out.println("<section class='elem elem-green'>");
 			
 			summoner = client.getSummoner(region, summonerName);
-			out.println("<h1>"+summoner.getName()+" Level :"+summoner.getSummonerLevel());
+			out.println("<h1>Summoner : " + summoner.getName() + "</h1>");
+			out.println("<h1>Level : " + summoner.getSummonerLevel() + "</h1>");
 
 			//obtain League information
 			try {
@@ -84,17 +85,19 @@ public class QuerySummoner extends HttpServlet {
 	
 				if (leagueEntry != null)
 				{
-					out.println("</br>");
-					out.println("LP: " +leagueEntry.getLeaguePoints()+ " Tier: " +leagueData.getTier()+ " Division: " +leagueEntry.getRank());
-					out.println("</br>");					
+					out.println("<h2>");
+					out.println("<p>League Points : " + leagueEntry.getLeaguePoints() + "</p>");
+					out.println("<p>Tier : " + leagueEntry.getTier() + "</p>");
+					out.println("<p>Division : " + leagueEntry.getRank() + "</p>");
+					out.println("</h2>");
 				}
 				else
 				{
-					out.println("No League Info");
+					//out.println("No League Info");
 				}
 
 			} catch (RiotApiException e) {
-				out.println("No League Info");
+				//out.println("No League Info");
 			}
 			
 			out.println("  <form id='addFavorite' name=add_favorite action='/addSummoner' method='post'>");

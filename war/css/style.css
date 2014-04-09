@@ -30,7 +30,7 @@ p code, li code {
   background-color: #ECECEC;
 }
 
-h1, h2 {
+h1, h2, h3 {
   font-family: 'Bree Serif', serif;
   font-weight: normal;
 }
@@ -45,6 +45,10 @@ h2 {
   font-family: 'Bree Serif', serif;
   margin: 1.2em 0;
   font-weight: normal;
+}
+
+h3 {
+  margin: 1.0em 0;
 }
 
 a:link {
@@ -284,6 +288,11 @@ a.nav.next {
 
 a.nav:hover {
   background-color: #c63b6f;
+}
+
+input.actionbutton:hover {
+  background-color: #c63b6f;
+  cursor: pointer;
 }
 
 a.nav:active {
