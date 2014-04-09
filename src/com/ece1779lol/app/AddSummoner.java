@@ -83,7 +83,7 @@ public class AddSummoner extends HttpServlet {
 				String globalSummonerKeyStr = HelperFunctions.addToFavorites(ds, user.getUserId(), summonerName, region);
 
 
-				HelperFunctions.addMatchHistory(ds, globalSummonerKeyStr, summonerName, region, client);
+				HelperFunctions.getLatestMatchHistory(ds, globalSummonerKeyStr, summonerName, region, client);
 
 				txn.commit();
 

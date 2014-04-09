@@ -3,7 +3,9 @@ package com.ece1779lol.app;
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import com.google.appengine.api.datastore.*;
@@ -164,17 +166,54 @@ public class HelperFunctions {
 		}
 	}
 	
-	public static void printLastMatchHistory()
+	public static List<StoredGame> GetSummonerLastMatchHistory(String summonerName, String region)
 	{
+		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+		List<StoredGame> gameList = new ArrayList<StoredGame>();
+
+		String summonerKeyStr = KeyFactory.keyToString(getGlobalSummonerKey(summonerName, region));
 		
+		Query q = new Query(gameEntityStr);
+		q.setFilter(new FilterPredicate("summoner_key",
+				Query.FilterOperator.EQUAL,
+				summonerKeyStr));
+		
+		// Perform the query.
+		PreparedQuery pq = ds.prepare(q);
+		for (Entity gameEntity : pq.asIterable()) {
+			Map<String, Object> gameProperties = gameEntity.getProperties();
+			StoredGame game = new StoredGame(gameProperties);
+			gameList.add(game);
+			break;
+		}
+		
+		return gameList;
 	}
 	
-	public static void printMatchHistory()
+	public static List<StoredGame> getSummonerMatchHistory(String summonerName, String region)
 	{
+		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+		List<StoredGame> gameList = new ArrayList<StoredGame>();
+
+		String summonerKeyStr = KeyFactory.keyToString(getGlobalSummonerKey(summonerName, region));
 		
+		Query q = new Query(gameEntityStr);
+		q.setFilter(new FilterPredicate("summoner_key",
+				Query.FilterOperator.EQUAL,
+				summonerKeyStr));
+		
+		// Perform the query.
+		PreparedQuery pq = ds.prepare(q);
+		for (Entity gameEntity : pq.asIterable()) {
+			Map<String, Object> gameProperties = gameEntity.getProperties();
+			StoredGame game = new StoredGame(gameProperties);
+			gameList.add(game);
+		}
+		
+		return gameList;
 	}
 	
-	public static void addMatchHistory(DatastoreService ds, String globalSummonerKey, String summonerName, Region region, RiotApi client)
+	public static void getLatestMatchHistory(DatastoreService ds, String globalSummonerKey, String summonerName, Region region, RiotApi client)
 	{
 		Summoner summoner;
 
@@ -312,13 +351,7 @@ public class HelperFunctions {
 	public static void printFavoriteSummunerTitle(PrintWriter out, String summonerName, String region)
 	{
 		String formId = "form_"+summonerName+region;
-		/*
-		out.println("<form action='/querySummoner' id="+formId+" method='post' style='display: none;'>");
-		out.println("<input type='text' name='summonerName' value="+summonerName+" />");
-		out.println("<input type='text' name='region' value="+getStringFromRegion(region)+" />");
-		out.println("</form>");
-		out.println("<a href='javascript:;' onclick='javascript:document.getElementById("+formId+").submit()'><h4>"+summonerName+" "+region+"</h4></a>");
-		*/
+
 		out.println("<td><form name="+formId+" method='post' action='/querySummoner'>");
 		out.println("<input type='hidden' name='summonerName' value="+summonerName+">");
 		out.println("<input type='hidden' name='region' value="+getStringFromRegion(region)+" />");
