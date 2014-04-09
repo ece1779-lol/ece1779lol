@@ -4,7 +4,9 @@ import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.logging.Logger;
 
+import com.google.appengine.api.datastore.*;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 
@@ -17,14 +19,41 @@ import net.enigmablade.riotapi.types.Summoner;
 
 public class HelperFunctions {
 	
+	private static final Logger log = Logger.getLogger(HelperFunctions.class.getName());
+	
+	public static String globalGames = "globalGames";
+	public static String globalFavorites = "globalFavorites";
+	public static String userFavoritePrefix = "userFavorites_";
+	public static String gameEntityStr = "lol_game";
+	
+	public static Key getGlobalFavoritesKey()
+	{
+		return KeyFactory.createKey("Favorites", globalFavorites);
+	}
+	
+	public static Entity getGlobalFavoritesEntity()
+	{
+		return new Entity("Favorites", globalFavorites);
+	}
+	
+	public static String getUserFavoritesStr(String userId)
+	{
+		return userFavoritePrefix+userId;
+	}
+	
+	public static String getGameIDName(long gameId, String globalSummonerKeyStr)
+	{
+		return gameId+"_"+globalSummonerKeyStr;
+	}
+	
 	public static void printLoginPage(PrintWriter out, UserService userService)
 	{
-			String navBar = "<nav>Welcome! <a href=\"" + userService.createLoginURL("/") +
-					 "\">Sign in or register</a> to customize.</nav>";
-			out.println(navBar);
-			out.println("  </body>");
-			out.println("</html>");
-			return;
+		String navBar = "<nav>Welcome! <a href=\""+ userService.createLoginURL("/") +
+				"\">Sign in or register</a> to customize.</nav>";
+		out.println(navBar);
+		out.println("  </body>");
+		out.println("</html>");
+		return;
 	}
 	
 	public static void printLolHeader(PrintWriter out, String title)

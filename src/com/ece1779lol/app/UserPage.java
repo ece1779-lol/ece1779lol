@@ -32,9 +32,6 @@ public class UserPage extends HttpServlet {
 
 	// Hard code the message board name for simplicity.  Could support
 	// multiple boards by getting this from the URL.
-	private String globalFavorites = "globalFavorites";
-	private String userFavoritePrefix = "favorites";
-
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		doGet(req, resp);
@@ -99,7 +96,7 @@ public class UserPage extends HttpServlet {
 
 		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 
-		String userFavoritesKeyName = userFavoritePrefix+user.getUserId();
+		String userFavoritesKeyName = HelperFunctions.userFavoritePrefix+user.getUserId();
 
 		// Display information about a message board and its messages.
 		Key userFavoritesKey = KeyFactory.createKey("Favorites", userFavoritesKeyName);
