@@ -116,8 +116,9 @@ public class UserPage extends HttpServlet {
 			if (pq2.countEntities() != 1)
 				out.println("<h1>WE GOT BIG ISSUE</h1>");
 			for (Entity summoner : pq2.asIterable()) {
-				out.println("<h4>" + (String)summoner.getProperty("summoner_name") +" "+
-							HelperFunctions.getStringFromRegion((String)summoner.getProperty("region")));
+				String summonerName = (String)summoner.getProperty("summoner_name");
+				String region = (String)summoner.getProperty("region");
+				HelperFunctions.printFavoriteSummunerTitle(out, summonerName, region);
 				out.println("  <form id='addFavorite' name=add_favorite action='/removeSummoner' method='post'>");
 				out.println("  <input type='hidden' name='favoritesKey' value="+KeyFactory.keyToString(favorite_keys.getKey())+">");
 				out.println("  <input type='hidden' name='summonerKey' value="+summoner_key+">");

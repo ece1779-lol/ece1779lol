@@ -36,7 +36,18 @@ public class QuerySummoner extends HttpServlet {
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
 		
-		HelperFunctions.printLolHeader(out, "Query LOL Summoner");
+		String summonerName = req.getParameter("summonerName");
+		String regionName = req.getParameter("region");
+		
+		if (summonerName.isEmpty() || regionName.isEmpty())
+		{
+			out.println("<h1>Invalid Params</h1>");
+			out.println("<a href=\"/\">Return to home page.</a></p>");
+		}
+		
+		Region region = HelperFunctions.getRegionFromString(regionName);
+		
+		HelperFunctions.printLolHeader(out, "LOL Tracker - "+summonerName);
 		out.println("<body>");
 		HelperFunctions.printLolLogo(out);
 		HelperFunctions.printLolMenu(out, userService, user);
@@ -52,9 +63,6 @@ public class QuerySummoner extends HttpServlet {
 		RiotApi client = (RiotApi)getServletContext().getAttribute("RiotClient");
 
 		Summoner summoner;
-
-		String summonerName = req.getParameter("summonerName");
-		Region region = HelperFunctions.getRegionFromString(req.getParameter("region"));
 
 		try {
 			summoner = client.getSummoner(region, summonerName);
