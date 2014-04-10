@@ -82,7 +82,7 @@ public class AddSummoner extends HttpServlet {
 				txn = ds.beginTransaction(options);
 
 				// Add to favorites if it is not in favorites
-				String globalSummonerKeyStr = HelperFunctions.addToFavorites(ds, user.getUserId(), summonerName, region);
+				String globalSummonerKeyStr = HelperFunctions.addToFavorites(ds, mc, user.getUserId(), summonerName, region.getValue());
 
 				HelperFunctions.getLatestSummonerMatchHistory(client, ds, mc, summonerName, region);
 

@@ -12,6 +12,7 @@ import javax.servlet.http.*;
 
 import com.google.appengine.api.datastore.*;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.users.*;
 
 import net.enigmablade.riotapi.*;
@@ -54,6 +55,7 @@ public class RemoveSummoner extends HttpServlet {
 		}
 		
 		DatastoreService ds = (DatastoreService)getServletContext().getAttribute("DataStore");
+		MemcacheService mc = (MemcacheService)getServletContext().getAttribute("MemCache");
 
 		String userFavoriteKeyStr = req.getParameter("favoritesKey");
 		String globalSummonerKeyStr = req.getParameter("summonerKey");
@@ -87,7 +89,7 @@ public class RemoveSummoner extends HttpServlet {
 				Key userFavoriteKey = KeyFactory.stringToKey(userFavoriteKeyStr);
 				ds.delete(userFavoriteKey);
 				
-				HelperFunctions.RemoveGlobalFavorites(ds, globalSummonerKeyStr);
+				HelperFunctions.RemoveGlobalFavorites(ds, mc, globalSummonerKeyStr);
 
 				txn.commit();
 

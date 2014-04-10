@@ -46,7 +46,7 @@ public class HelperFunctions {
 	}
 	
 	//Retrieves key of summoner from global favorites or adds it
-	public static String addToFavorites(DatastoreService ds, String userId, String summonerName, Region region)
+	public static String addToFavorites(DatastoreService ds, MemcacheService mc, String userId, String summonerName, String region)
 	{
 		// Get/Create Global Favorites
 		Key globalFavoritesKey;
@@ -79,15 +79,15 @@ public class HelperFunctions {
 
 
 		// Get/Create global summoner properties
-		String favoritesEntryName = getGlobalSummonerStr(summonerName, region.getValue());   // key is summonername+region
+		String favoritesEntryName = getGlobalSummonerStr(summonerName, region);   // key is summonername+region
 		Key favoritesEntryKey, userSummonerKey;
 		Entity favoritesEntryEntity, userSummonerEntity;
 		String globalSummonerKeyStr;
-		String userSummonerName = getUserSummonerStr(userId, summonerName, region.getValue());
+		String userSummonerName = getUserSummonerStr(userId, summonerName, region);
 
 		try {
 			long refcount;
-			favoritesEntryKey = getGlobalSummonerKey(summonerName, region.getValue());
+			favoritesEntryKey = getGlobalSummonerKey(summonerName, region);
 			KeyFactory.createKey(globalFavoritesKey, "summoner", favoritesEntryName);
 			favoritesEntryEntity = ds.get(favoritesEntryKey);
 
@@ -115,7 +115,7 @@ public class HelperFunctions {
 		} catch (EntityNotFoundException e) {
 			favoritesEntryEntity = new Entity("summoner", favoritesEntryName, globalFavoritesKey);
 			favoritesEntryEntity.setProperty("summoner_name", summonerName);
-			favoritesEntryEntity.setProperty("region", region.getValue());
+			favoritesEntryEntity.setProperty("region", region);
 			favoritesEntryEntity.setProperty("refcount", 1L);
 			favoritesEntryKey = ds.put(favoritesEntryEntity);
 
@@ -126,10 +126,12 @@ public class HelperFunctions {
 			userSummonerKey = ds.put(userSummonerEntity);
 		}
 
+		mc.put(MCGetGlobalSummoner(summonerName, region), globalSummonerKeyStr);
+		
 		return globalSummonerKeyStr;
 	}
 
-	public static void RemoveGlobalFavorites(DatastoreService ds, String summonerKeyStr)
+	public static void RemoveGlobalFavorites(DatastoreService ds, MemcacheService mc, String summonerKeyStr)
 	{
 		Entity globalFavoritesEntity;
 		Key summonerKey = KeyFactory.stringToKey(summonerKeyStr);
@@ -146,9 +148,13 @@ public class HelperFunctions {
 			}
 			else
 			{
+				String summonerName = (String)globalFavoritesEntity.getProperty("summoner_name");
+				String region = (String)globalFavoritesEntity.getProperty("region");
+				
+				
 				//If last reference then delete entry and also delete game history
 				ds.delete(summonerKey);
-				
+			
 				Query q = new Query(gameEntityStr);
 				q.setFilter(new FilterPredicate("summoner_key",
 						Query.FilterOperator.EQUAL,
@@ -159,12 +165,30 @@ public class HelperFunctions {
 				for (Entity gameEntity : pq.asIterable()) {
 					ds.delete(gameEntity.getKey());
 				}
+				
+				//clean MC for user
+				mc.delete(MCGetGlobalSummoner(summonerName, region));
+				mc.delete(MCGetLatestGameId(summonerName, region));
+				mc.delete(MCGetLatestStoredGame(summonerName, region));
+				
 			}
 		} catch (EntityNotFoundException e) {
-			log.info("Couldn't find global favorites summoner");
-			// TODO: something really bad going on!
+			log.info("Couldn't find global favorites summoner with key "+summonerKeyStr);
 			return;
 		}
+	}
+	
+	private static String MCGetLatestGameId(String summonerName, String region)
+	{
+		return "LatestGameId_"+summonerName+region;
+	}
+	private static String MCGetLatestStoredGame(String summonerName, String region)
+	{
+		return "LatestStoredGame_"+summonerName+region;
+	}
+	private static String MCGetGlobalSummoner(String summonerName, String region)
+	{
+		return "globalSummoner_"+summonerName+region;
 	}
 	
 	public static void getLatestSummonerMatchHistory(RiotApi client, DatastoreService ds, MemcacheService mc, String summonerName, Region region)
@@ -174,7 +198,7 @@ public class HelperFunctions {
 		try {
 			summoner = client.getSummoner(region, summonerName);
 			
-			String key = "globalSummoner_"+summonerName+region.getValue();
+			String key = MCGetGlobalSummoner(summonerName, region.getValue());
 			String globalSummonerKeyStr = (String)mc.get(key);
 			if (globalSummonerKeyStr == null) {
 				Key globalSummonerKey = getGlobalSummonerKey(summonerName, region.getValue());
@@ -185,8 +209,8 @@ public class HelperFunctions {
 			try {
 				List<Game> myMatchHistory = summoner.getMatchHistory();
 				
-				String MCLatestGameId = "LatestGameId_"+summonerName+region.getValue();
-				String MCLatestStoredGame = "LatestStoredGame_"+summonerName+region.getValue();
+				String MCLatestGameId = MCGetLatestGameId(summonerName, region.getValue());
+				String MCLatestStoredGame = MCGetLatestStoredGame(summonerName, region.getValue());
 				Long latestGameId = (Long)mc.get(MCLatestGameId);
 				if (latestGameId == null)
 				{
@@ -264,15 +288,15 @@ public class HelperFunctions {
 	
 	public static StoredGame GetSummonerLastMatchHistory(DatastoreService ds, MemcacheService mc, String summonerName, String region)
 	{
-		String MCLatestGameId = "LatestGameId_"+summonerName+region;
-		String MCLatestStoredGame = "LatestStoredGame_"+summonerName+region;
+		String MCLatestGameId = MCGetLatestGameId(summonerName, region);
+		String MCLatestStoredGame = MCGetLatestStoredGame(summonerName, region);
 		StoredGame game = null;
 		Entity latestGameEntity = (Entity)mc.get(MCLatestStoredGame);
 		if (latestGameEntity == null)
 		{
 			log.info("memcache fail for "+MCLatestStoredGame);
 			
-			String key = "globalSummoner_"+summonerName+region;
+			String key = MCGetGlobalSummoner(summonerName, region);
 			String globalSummonerKeyStr = (String)mc.get(key);
 			if (globalSummonerKeyStr == null) {
 				log.info("memcache fail for "+key);
@@ -454,6 +478,34 @@ public class HelperFunctions {
 			out.println("<td>" + game.getDeaths() +"</td>");
 		}
 	}
+	
+	public static void printRiotGameStats(PrintWriter out, Game game)
+	{
+		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		String dateFormatted = formatter.format(game.getPlayedDate());
+		out.println("<td>" + dateFormatted +"</td>");
+		
+		Champion champion = game.getChampion();
+	
+		try {
+			out.println("<td>" + "<img src=\"" +champion.getName()+"_Square_0.png\" height=50 width=50> " + champion.getName() +"</td>");
+		} catch (RiotApiException e) {
+			out.println("<td> N/A </td>"); //TODO: should we default to a champion ?
+		}
+	
+		if (game.isWin())
+			out.println("<td>Win</td>");
+		else
+			out.println("<td>Loss</td>");
+	
+		int gameLengthInMinutes = game.getLength() / 60;
+		out.println("<td>" + gameLengthInMinutes +"</td>");
+		out.println("<td>" + game.getGoldEarned() +"</td>");
+		out.println("<td>" + game.getChampionsKilled() +"</td>");
+		out.println("<td>" + game.getAssists() +"</td>");
+		out.println("<td>" + game.getDeaths() +"</td>");
+	}
+	
 	
 	public static void printUserPageStats(PrintWriter out, RiotApi client, DatastoreService ds, MemcacheService mc, String summonerName, String region)
 	{

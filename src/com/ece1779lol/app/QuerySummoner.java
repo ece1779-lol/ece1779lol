@@ -14,6 +14,7 @@ import javax.servlet.http.*;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -107,8 +108,10 @@ public class QuerySummoner extends HttpServlet {
 			}
 			
 			DatastoreService ds = (DatastoreService)getServletContext().getAttribute("DataStore");
+			MemcacheService mc = (MemcacheService)getServletContext().getAttribute("MemCache");
 			
-			if ( HelperFunctions.isFavoriteAlready(ds, user.getUserId(), summoner.getName(), region) )
+			boolean isFavorite = HelperFunctions.isFavoriteAlready(ds, user.getUserId(), summoner.getName(), region);
+			if (isFavorite)
 			{
 				out.println("  <form id='removeFavorite' name=remove_favorite action='/removeSummoner' method='post'>");
 				out.println("  <input type='hidden' name='summonerName' value="+summoner.getName()+">");
@@ -124,6 +127,7 @@ public class QuerySummoner extends HttpServlet {
 				out.println("  <input class='actionbutton' type='submit' value='Follow'>");
 				out.println("  </form>");
 			}
+			
 			out.println("</h1>");
 			out.println("</section></div>");
 			
@@ -135,40 +139,38 @@ public class QuerySummoner extends HttpServlet {
 			out.println("<table class='pretty'><tbody>");
 			out.println("<tr><th>Date</th><th>Champion</th><th>Outcome</th><th>Minutes</th>");
 			out.println("<th>Gold</th><th>Kills</th><th>Assists</th><th>Deaths</th></tr>");
-			// Match History
-			try {
-				List<Game> myMatchHistory = summoner.getMatchHistory();
-				for (Game game : myMatchHistory)
+
+			if (isFavorite)
+			{
+				HelperFunctions.getLatestSummonerMatchHistory(client, ds, mc, summonerName, region);
+				List<StoredGame> gameHistory = HelperFunctions.getSummonerMatchHistory(ds, summonerName, region.getValue());
+				for (StoredGame game : gameHistory)
 				{
 					out.println("<tr>");
-
-					DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-					String dateFormatted = formatter.format(game.getPlayedDate());
-					out.println("<td>" + dateFormatted +"</td>");
-					
-					Champion champion = game.getChampion();
-
-					out.println("<td>" + "<img src=\"" +champion.getName()+"_Square_0.png\" height=50 width=50> " + champion.getName() +"</td>");
-
-					if (game.isWin())
-						out.println("<td>Win</td>");
-					else
-						out.println("<td>Loss</td>");
-
-					int gameLengthInMinutes = game.getLength() / 60;
-					out.println("<td>" + gameLengthInMinutes +"</td>");
-					out.println("<td>" + game.getGoldEarned() +"</td>");
-					out.println("<td>" + game.getChampionsKilled() +"</td>");
-					out.println("<td>" + game.getAssists() +"</td>");
-					out.println("<td>" + game.getDeaths() +"</td>");
-					
+					HelperFunctions.printGameStats(out, game);
 					out.println("</tr>");
 				}
-			} catch (RiotApiException e) {
-				out.println("No GAMES");
-			} finally {
-				out.println("</tbody></table></section></div>");
 			}
+			else
+			{
+				// Match History
+				try {
+					List<Game> myMatchHistory = summoner.getMatchHistory();
+					for (Game game : myMatchHistory)
+					{
+						out.println("<tr>");
+						HelperFunctions.printRiotGameStats(out, game);
+						out.println("</tr>");
+					}
+				} catch (RiotApiException e) {
+					out.println("<tr>");
+					HelperFunctions.printGameStats(out, null);
+					out.println("</tr>");
+				}
+			}
+			
+			out.println("</tbody></table></section></div>");
+
 
 		} catch (RiotApiException e) {
 			out.println(summonerName+" is invalid summoner ID");
