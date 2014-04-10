@@ -251,7 +251,7 @@ public class HelperFunctions {
 					} catch (EntityNotFoundException e) {
 						//game doesnt exist, add it to DB
 						gameIdEntity = new Entity(gameEntityStr, gameIdName, GamesKey);
-						gameIdEntity.setProperty("summoner_key", globalSummonerKey);
+						gameIdEntity.setProperty("summoner_key", globalSummonerKeyStr);
 						gameIdEntity.setProperty("gameId", game.getGameId());
 						gameIdEntity.setProperty("isWin", game.isWin());
 						gameIdEntity.setProperty("gameDate", game.getPlayedDate());
@@ -401,7 +401,7 @@ public class HelperFunctions {
 	
 	public static void printUserPageStats(PrintWriter out, String summonerName, String region, RiotApi client)
 	{
-		/*
+
 		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 		getLatestMatchHistory(ds, summonerName, getRegionFromString(region), client);
 		List<StoredGame> gameList = GetSummonerLastMatchHistory(summonerName, region);
@@ -413,42 +413,6 @@ public class HelperFunctions {
 		else
 		{
 			printGameStats(out, gameList.get(0)); 
-		}
-		*/
-		
-		Summoner summoner;
-		Region regionQuery = getRegionFromString(region);
-		
-		Game game;
-		
-		try {
-			summoner = client.getSummoner(regionQuery, summonerName);
-			
-			List<Game> myMatchHistory = summoner.getMatchHistory();
-			
-			game = myMatchHistory.get(0);
-			
-			DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-			String dateFormatted = formatter.format(game.getPlayedDate());
-			out.println("<td>" + dateFormatted + "</td>");
-			
-			Champion champion = game.getChampion();
-			out.println("<td>" + "<img src=\"" +champion.getName()+"_Square_0.png\" height=50 width=50> " + champion.getName() +"</td>");
-			
-			if (game.isWin())
-				out.println("<td>Win</td>");
-			else
-				out.println("<td>Loss</td>");
-
-			int gameLengthInMinutes = game.getLength() / 60;
-			out.println("<td>" + gameLengthInMinutes +"</td>");
-			out.println("<td>" + game.getGoldEarned() +"</td>");
-			out.println("<td>" + game.getChampionsKilled() +"</td>");
-			out.println("<td>" + game.getAssists() +"</td>");
-			out.println("<td>" + game.getDeaths() +"</td>");
-		}
-		catch (RiotApiException e) {
-			out.println("No GAMES");
 		}
 	}
 
