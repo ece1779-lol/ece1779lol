@@ -247,7 +247,7 @@ public class HelperFunctions {
 						gameIdKey = ds.put(gameIdEntity);
 						if (firstGame)
 						{
-							mc.put(MCLatestStoredGame, new StoredGame(gameIdEntity.getProperties()));
+							mc.put(MCLatestStoredGame, gameIdEntity);
 						}
 					}
 					

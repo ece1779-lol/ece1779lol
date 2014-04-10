@@ -26,11 +26,11 @@ public class StoredGame
 		this.gameId = (long)properties.get("gameId");
 		this.isWin = (boolean)properties.get("isWin");
 		this.gameDate = (Date)properties.get("gameDate");
-		this.gameLength = (long)properties.get("gameLength");
-		this.goldEarned = (long)properties.get("goldEarned");
-		this.championsKilled = (long)properties.get("championsKilled");
-		this.assists = (long)properties.get("assists");
-		this.deaths = (long)properties.get("deaths");
+		this.gameLength = Long.valueOf(properties.get("gameLength").toString());
+		this.goldEarned = Long.valueOf(properties.get("goldEarned").toString());
+		this.championsKilled = Long.valueOf(properties.get("championsKilled").toString());
+		this.assists = Long.valueOf(properties.get("assists").toString());
+		this.deaths = Long.valueOf(properties.get("deaths").toString());
 		this.championName = (String)properties.get("championName");
 	}
 
