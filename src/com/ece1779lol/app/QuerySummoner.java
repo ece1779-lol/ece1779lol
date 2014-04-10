@@ -106,7 +106,7 @@ public class QuerySummoner extends HttpServlet {
 				log.info("RiotApiException encountered while retrieving league data");
 			}
 			
-			DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+			DatastoreService ds = (DatastoreService)getServletContext().getAttribute("DataStore");
 			
 			if ( HelperFunctions.isFavoriteAlready(ds, user.getUserId(), summoner.getName(), region) )
 			{

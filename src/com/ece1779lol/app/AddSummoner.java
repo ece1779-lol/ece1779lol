@@ -14,6 +14,7 @@ import javax.servlet.http.*;
 
 import com.google.appengine.api.datastore.*;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.users.*;
 
 import net.enigmablade.riotapi.*;
@@ -62,7 +63,8 @@ public class AddSummoner extends HttpServlet {
 			return;
 		}
 
-		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+		DatastoreService ds = (DatastoreService)getServletContext().getAttribute("DataStore");
+		MemcacheService mc = (MemcacheService)getServletContext().getAttribute("MemCache");
 
 		RiotApi client = (RiotApi)getServletContext().getAttribute("RiotClient");
 		
@@ -82,8 +84,7 @@ public class AddSummoner extends HttpServlet {
 				// Add to favorites if it is not in favorites
 				String globalSummonerKeyStr = HelperFunctions.addToFavorites(ds, user.getUserId(), summonerName, region);
 
-
-				HelperFunctions.getLatestMatchHistory(ds, summonerName, region, client);
+				HelperFunctions.getLatestSummonerMatchHistory(client, ds, mc, summonerName, region);
 
 				txn.commit();
 

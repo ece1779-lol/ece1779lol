@@ -7,8 +7,8 @@ import java.util.*;
 import javax.servlet.http.*;
 
 import com.google.appengine.api.datastore.*;
-import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -86,7 +86,8 @@ public class UserPage extends HttpServlet {
 		out.println("<div class='highlight' id='container elem'>");
 		out.println("<section class='elem elem-green'>");
 
-		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+		DatastoreService ds = (DatastoreService)getServletContext().getAttribute("DataStore");
+		MemcacheService mc = (MemcacheService)getServletContext().getAttribute("MemCache");
 
 		String userFavoritesKeyName = HelperFunctions.getUserFavoritesStr(user.getUserId());
 
@@ -122,7 +123,7 @@ public class UserPage extends HttpServlet {
 				String region = (String)summoner.getProperty("region");
 				HelperFunctions.printFavoriteSummunerTitle(out, summonerName, region);
 				
-				HelperFunctions.printUserPageStats(out, summonerName, region, client);
+				HelperFunctions.printUserPageStats(out, client, ds, mc, summonerName, region);
 
 				out.println("  <td><form id='addFavorite' name=add_favorite action='/removeSummoner' method='post'>");
 				out.println("  <input type='hidden' name='favoritesKey' value="+KeyFactory.keyToString(favorite_keys.getKey())+">");

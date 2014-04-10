@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 
 import com.google.appengine.api.datastore.*;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 
@@ -166,65 +167,33 @@ public class HelperFunctions {
 		}
 	}
 	
-	public static List<StoredGame> GetSummonerLastMatchHistory(String summonerName, String region)
-	{
-		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-		List<StoredGame> gameList = new ArrayList<StoredGame>();
-
-		String summonerKeyStr = KeyFactory.keyToString(getGlobalSummonerKey(summonerName, region));
-		
-		Query q = new Query(gameEntityStr);
-		q.setFilter(new FilterPredicate("summoner_key",
-				Query.FilterOperator.EQUAL,
-				summonerKeyStr));
-		
-		// Perform the query.
-		PreparedQuery pq = ds.prepare(q);
-		for (Entity gameEntity : pq.asIterable()) {
-			Map<String, Object> gameProperties = gameEntity.getProperties();
-			StoredGame game = new StoredGame(gameProperties);
-			gameList.add(game);
-			break;
-		}
-		
-		return gameList;
-	}
-	
-	public static List<StoredGame> getSummonerMatchHistory(String summonerName, String region)
-	{
-		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-		List<StoredGame> gameList = new ArrayList<StoredGame>();
-
-		String summonerKeyStr = KeyFactory.keyToString(getGlobalSummonerKey(summonerName, region));
-		
-		Query q = new Query(gameEntityStr);
-		q.setFilter(new FilterPredicate("summoner_key",
-				Query.FilterOperator.EQUAL,
-				summonerKeyStr));
-		
-		// Perform the query.
-		PreparedQuery pq = ds.prepare(q);
-		for (Entity gameEntity : pq.asIterable()) {
-			Map<String, Object> gameProperties = gameEntity.getProperties();
-			StoredGame game = new StoredGame(gameProperties);
-			gameList.add(game);
-		}
-		
-		return gameList;
-	}
-	
-	public static void getLatestMatchHistory(DatastoreService ds, String summonerName, Region region, RiotApi client)
+	public static void getLatestSummonerMatchHistory(RiotApi client, DatastoreService ds, MemcacheService mc, String summonerName, Region region)
 	{
 		Summoner summoner;
 
 		try {
 			summoner = client.getSummoner(region, summonerName);
 			
-			Key globalSummonerKey = getGlobalSummonerKey(summonerName, region.getValue());
-			String globalSummonerKeyStr = KeyFactory.keyToString(globalSummonerKey);
+			String key = "globalSummoner_"+summonerName+region.getValue();
+			String globalSummonerKeyStr = (String)mc.get(key);
+			if (globalSummonerKeyStr == null) {
+				Key globalSummonerKey = getGlobalSummonerKey(summonerName, region.getValue());
+				globalSummonerKeyStr = KeyFactory.keyToString(globalSummonerKey);
+			}
+
 			
 			try {
 				List<Game> myMatchHistory = summoner.getMatchHistory();
+				
+				String MCLatestGameId = "LatestGameId_"+summonerName+region.getValue();
+				String MCLatestStoredGame = "LatestStoredGame_"+summonerName+region.getValue();
+				Long latestGameId = (Long)mc.get(MCLatestGameId);
+				if (latestGameId == null)
+				{
+					latestGameId = 0L;
+				}
+
+				boolean firstGame = true; 
 				for (Game game : myMatchHistory)
 				{
 					Key GamesKey;
@@ -232,13 +201,24 @@ public class HelperFunctions {
 					try {
 						GamesKey = KeyFactory.createKey("Games", globalGames);
 						GamesEntity = ds.get(GamesKey);
-
 					} catch (EntityNotFoundException e) {
 						GamesEntity = new Entity("Games", globalGames);
 						GamesKey = ds.put(GamesEntity);
 					}
 
-
+					if (firstGame)
+					{
+						if(latestGameId == game.getGameId())
+						{
+							break;
+						}
+						else
+						{
+							latestGameId =  game.getGameId();
+							mc.put(MCLatestGameId, latestGameId);
+						}
+					}
+					
 					String gameIdName = getGameIDName(game.getGameId(), globalSummonerKeyStr);
 					Key gameIdKey;
 					Entity gameIdEntity;
@@ -265,7 +245,13 @@ public class HelperFunctions {
 						gameIdEntity.setProperty("championName", champion.getName());
 
 						gameIdKey = ds.put(gameIdEntity);
+						if (firstGame)
+						{
+							mc.put(MCLatestStoredGame, new StoredGame(gameIdEntity.getProperties()));
+						}
 					}
+					
+					firstGame = false;
 				}
 			} catch (RiotApiException e) {
 				log.info("No match history found for "+summonerName);
@@ -274,6 +260,76 @@ public class HelperFunctions {
 		} catch (RiotApiException e) {
 			log.info(summonerName+" summoner ID is not found");
 		}
+	}
+	
+	public static StoredGame GetSummonerLastMatchHistory(DatastoreService ds, MemcacheService mc, String summonerName, String region)
+	{
+		String MCLatestGameId = "LatestGameId_"+summonerName+region;
+		String MCLatestStoredGame = "LatestStoredGame_"+summonerName+region;
+		StoredGame game = null;
+		Entity latestGameEntity = (Entity)mc.get(MCLatestStoredGame);
+		if (latestGameEntity == null)
+		{
+			log.info("memcache fail for "+MCLatestStoredGame);
+			
+			String key = "globalSummoner_"+summonerName+region;
+			String globalSummonerKeyStr = (String)mc.get(key);
+			if (globalSummonerKeyStr == null) {
+				log.info("memcache fail for "+key);
+				Key globalSummonerKey = getGlobalSummonerKey(summonerName, region);
+				globalSummonerKeyStr = KeyFactory.keyToString(globalSummonerKey);
+			}
+			else
+			{
+				log.info("memcache hit for "+key);
+			}
+			
+			Query q = new Query(gameEntityStr);
+			q.setFilter(new FilterPredicate("summoner_key",
+					Query.FilterOperator.EQUAL,
+					globalSummonerKeyStr));
+			
+			// Perform the query.
+			PreparedQuery pq = ds.prepare(q);
+			for (Entity gameEntity : pq.asIterable(FetchOptions.Builder.withLimit(1).offset(0))) {
+				Map<String, Object> gameProperties = gameEntity.getProperties();
+				game = new StoredGame(gameProperties);
+				
+				//Store in memcache for later as well
+				mc.put(MCLatestGameId, (Long)game.getGameId());
+				mc.put(MCLatestStoredGame, gameEntity);
+				return game;
+			}
+		}
+		else
+		{
+			game = new StoredGame(latestGameEntity.getProperties());
+			log.info("memcache hit for "+MCLatestStoredGame);
+		}
+		
+		return game;
+	}
+	
+	public static List<StoredGame> getSummonerMatchHistory(DatastoreService ds, String summonerName, String region)
+	{
+		List<StoredGame> gameList = new ArrayList<StoredGame>();
+
+		String summonerKeyStr = KeyFactory.keyToString(getGlobalSummonerKey(summonerName, region));
+		
+		Query q = new Query(gameEntityStr);
+		q.setFilter(new FilterPredicate("summoner_key",
+				Query.FilterOperator.EQUAL,
+				summonerKeyStr));
+		
+		// Perform the query.
+		PreparedQuery pq = ds.prepare(q);
+		for (Entity gameEntity : pq.asIterable()) {
+			Map<String, Object> gameProperties = gameEntity.getProperties();
+			StoredGame game = new StoredGame(gameProperties);
+			gameList.add(game);
+		}
+		
+		return gameList;
 	}
 	
 	public static Key getGlobalFavoritesKey()
@@ -399,21 +455,11 @@ public class HelperFunctions {
 		}
 	}
 	
-	public static void printUserPageStats(PrintWriter out, String summonerName, String region, RiotApi client)
+	public static void printUserPageStats(PrintWriter out, RiotApi client, DatastoreService ds, MemcacheService mc, String summonerName, String region)
 	{
-
-		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-		getLatestMatchHistory(ds, summonerName, getRegionFromString(region), client);
-		List<StoredGame> gameList = GetSummonerLastMatchHistory(summonerName, region);
-		if (gameList.isEmpty())
-		{
-			log.info("no last game info for "+summonerName+" "+region);
-			printGameStats(out, null);
-		}
-		else
-		{
-			printGameStats(out, gameList.get(0)); 
-		}
+		getLatestSummonerMatchHistory(client, ds, mc, summonerName, getRegionFromString(region));
+		StoredGame game = GetSummonerLastMatchHistory(ds, mc, summonerName, region);
+		printGameStats(out, game);
 	}
 
 	public static void printLolMenu(PrintWriter out, UserService userService, User user)

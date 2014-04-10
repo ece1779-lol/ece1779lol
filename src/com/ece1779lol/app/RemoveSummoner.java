@@ -53,7 +53,7 @@ public class RemoveSummoner extends HttpServlet {
 			return;
 		}
 		
-		DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+		DatastoreService ds = (DatastoreService)getServletContext().getAttribute("DataStore");
 
 		String userFavoriteKeyStr = req.getParameter("favoritesKey");
 		String globalSummonerKeyStr = req.getParameter("summonerKey");
