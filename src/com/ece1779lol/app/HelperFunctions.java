@@ -22,14 +22,14 @@ import net.enigmablade.riotapi.types.Game;
 import net.enigmablade.riotapi.types.Summoner;
 
 public class HelperFunctions {
-	
+
 	private static final Logger log = Logger.getLogger(HelperFunctions.class.getName());
-	
+
 	public static String globalGames = "globalGames";
 	public static String globalFavorites = "globalFavorites";
 	public static String userFavoritePrefix = "userFavorites_";
 	public static String gameEntityStr = "lol_game";
-	
+
 
 	public static boolean isFavoriteAlready(DatastoreService ds, String userId, String summonerName, Region region)
 	{
@@ -44,7 +44,7 @@ public class HelperFunctions {
 			return false;
 		}
 	}
-	
+
 	//Retrieves key of summoner from global favorites or adds it
 	public static String addToFavorites(DatastoreService ds, MemcacheService mc, String userId, String summonerName, String region)
 	{
@@ -92,7 +92,7 @@ public class HelperFunctions {
 			favoritesEntryEntity = ds.get(favoritesEntryKey);
 
 			globalSummonerKeyStr = KeyFactory.keyToString(favoritesEntryEntity.getKey());
-			
+
 			userSummonerKey = KeyFactory.createKey(userFavoritesKey, "summoner_ref", userSummonerName);
 
 			try {
@@ -127,7 +127,7 @@ public class HelperFunctions {
 		}
 
 		mc.put(MCGetGlobalSummoner(summonerName, region), globalSummonerKeyStr);
-		
+
 		return globalSummonerKeyStr;
 	}
 
@@ -135,7 +135,7 @@ public class HelperFunctions {
 	{
 		Entity globalFavoritesEntity;
 		Key summonerKey = KeyFactory.stringToKey(summonerKeyStr);
-		
+
 		try {
 			globalFavoritesEntity = ds.get(summonerKey);
 			long refcount = (long)globalFavoritesEntity.getProperty("refcount");
@@ -150,34 +150,34 @@ public class HelperFunctions {
 			{
 				String summonerName = (String)globalFavoritesEntity.getProperty("summoner_name");
 				String region = (String)globalFavoritesEntity.getProperty("region");
-				
-				
+
+
 				//If last reference then delete entry and also delete game history
 				ds.delete(summonerKey);
-			
+
 				Query q = new Query(gameEntityStr);
 				q.setFilter(new FilterPredicate("summoner_key",
 						Query.FilterOperator.EQUAL,
 						summonerKeyStr));
-				
+
 				// Perform the query.
 				PreparedQuery pq = ds.prepare(q);
 				for (Entity gameEntity : pq.asIterable()) {
 					ds.delete(gameEntity.getKey());
 				}
-				
+
 				//clean MC for user
 				mc.delete(MCGetGlobalSummoner(summonerName, region));
 				mc.delete(MCGetLatestGameId(summonerName, region));
 				mc.delete(MCGetLatestStoredGame(summonerName, region));
-				
+
 			}
 		} catch (EntityNotFoundException e) {
 			log.info("Couldn't find global favorites summoner with key "+summonerKeyStr);
 			return;
 		}
 	}
-	
+
 	private static String MCGetLatestGameId(String summonerName, String region)
 	{
 		return "LatestGameId_"+summonerName+region;
@@ -190,14 +190,14 @@ public class HelperFunctions {
 	{
 		return "globalSummoner_"+summonerName+region;
 	}
-	
+
 	public static void getLatestSummonerMatchHistory(RiotApi client, DatastoreService ds, MemcacheService mc, String summonerName, Region region)
 	{
 		Summoner summoner;
 
 		try {
 			summoner = client.getSummoner(region, summonerName);
-			
+
 			String key = MCGetGlobalSummoner(summonerName, region.getValue());
 			String globalSummonerKeyStr = (String)mc.get(key);
 			if (globalSummonerKeyStr == null) {
@@ -205,10 +205,10 @@ public class HelperFunctions {
 				globalSummonerKeyStr = KeyFactory.keyToString(globalSummonerKey);
 			}
 
-			
+
 			try {
 				List<Game> myMatchHistory = summoner.getMatchHistory();
-				
+
 				String MCLatestGameId = MCGetLatestGameId(summonerName, region.getValue());
 				String MCLatestStoredGame = MCGetLatestStoredGame(summonerName, region.getValue());
 				Long latestGameId = (Long)mc.get(MCLatestGameId);
@@ -217,7 +217,8 @@ public class HelperFunctions {
 					latestGameId = 0L;
 				}
 
-				boolean firstGame = true; 
+				boolean firstGame = true;
+
 				for (Game game : myMatchHistory)
 				{
 					Key GamesKey;
@@ -234,6 +235,9 @@ public class HelperFunctions {
 					{
 						if(latestGameId == game.getGameId())
 						{
+							//Riot always returns games ordered latest->oldest
+							//If we already stored game in DB, safe to assume older
+							// ones are also already stored
 							break;
 						}
 						else
@@ -242,7 +246,7 @@ public class HelperFunctions {
 							mc.put(MCLatestGameId, latestGameId);
 						}
 					}
-					
+
 					String gameIdName = getGameIDName(game.getGameId(), globalSummonerKeyStr);
 					Key gameIdKey;
 					Entity gameIdEntity;
@@ -251,6 +255,9 @@ public class HelperFunctions {
 						gameIdEntity = ds.get(gameIdKey);
 
 						//game exists in DB, hence no longer need to store more of the history
+						//Riot always returns games ordered latest->oldest
+						//If we already stored game in DB, safe to assume older
+						// ones are also already stored
 						break;
 					} catch (EntityNotFoundException e) {
 						//game doesnt exist, add it to DB
@@ -264,7 +271,7 @@ public class HelperFunctions {
 						gameIdEntity.setProperty("championsKilled", (int)game.getChampionsKilled());
 						gameIdEntity.setProperty("assists", (int)game.getAssists());
 						gameIdEntity.setProperty("deaths", (int)game.getDeaths());
-						
+
 						Champion champion = game.getChampion();
 						gameIdEntity.setProperty("championName", champion.getName());
 
@@ -274,7 +281,7 @@ public class HelperFunctions {
 							mc.put(MCLatestStoredGame, gameIdEntity);
 						}
 					}
-					
+
 					firstGame = false;
 				}
 			} catch (RiotApiException e) {
@@ -285,7 +292,7 @@ public class HelperFunctions {
 			log.info(summonerName+" summoner ID is not found");
 		}
 	}
-	
+
 	public static StoredGame GetSummonerLastMatchHistory(DatastoreService ds, MemcacheService mc, String summonerName, String region)
 	{
 		String MCLatestGameId = MCGetLatestGameId(summonerName, region);
@@ -295,7 +302,7 @@ public class HelperFunctions {
 		if (latestGameEntity == null)
 		{
 			log.info("memcache fail for "+MCLatestStoredGame);
-			
+
 			String key = MCGetGlobalSummoner(summonerName, region);
 			String globalSummonerKeyStr = (String)mc.get(key);
 			if (globalSummonerKeyStr == null) {
@@ -307,21 +314,24 @@ public class HelperFunctions {
 			{
 				log.info("memcache hit for "+key);
 			}
-			
+
 			Query q = new Query(gameEntityStr);
 			q.setFilter(new FilterPredicate("summoner_key",
 					Query.FilterOperator.EQUAL,
 					globalSummonerKeyStr));
-			
+			q.addSort("gameDate",Query.SortDirection.DESCENDING);
+
 			// Perform the query.
 			PreparedQuery pq = ds.prepare(q);
-			for (Entity gameEntity : pq.asIterable(FetchOptions.Builder.withLimit(1).offset(0))) {
+			for (Entity gameEntity : pq.asIterable(FetchOptions.Builder.withLimit(1).offset(0)))
+			{
 				Map<String, Object> gameProperties = gameEntity.getProperties();
 				game = new StoredGame(gameProperties);
-				
+
 				//Store in memcache for later as well
 				mc.put(MCLatestGameId, (Long)game.getGameId());
 				mc.put(MCLatestStoredGame, gameEntity);
+
 				return game;
 			}
 		}
@@ -330,21 +340,22 @@ public class HelperFunctions {
 			game = new StoredGame(latestGameEntity.getProperties());
 			log.info("memcache hit for "+MCLatestStoredGame);
 		}
-		
+
 		return game;
 	}
-	
+
 	public static List<StoredGame> getSummonerMatchHistory(DatastoreService ds, String summonerName, String region)
 	{
 		List<StoredGame> gameList = new ArrayList<StoredGame>();
 
 		String summonerKeyStr = KeyFactory.keyToString(getGlobalSummonerKey(summonerName, region));
-		
+
 		Query q = new Query(gameEntityStr);
 		q.setFilter(new FilterPredicate("summoner_key",
 				Query.FilterOperator.EQUAL,
 				summonerKeyStr));
-		
+		q.addSort("gameDate",Query.SortDirection.DESCENDING);
+
 		// Perform the query.
 		PreparedQuery pq = ds.prepare(q);
 		for (Entity gameEntity : pq.asIterable()) {
@@ -352,57 +363,57 @@ public class HelperFunctions {
 			StoredGame game = new StoredGame(gameProperties);
 			gameList.add(game);
 		}
-		
+
 		return gameList;
 	}
-	
+
 	public static Key getGlobalFavoritesKey()
 	{
 		return KeyFactory.createKey("Favorites", globalFavorites);
 	}
-	
+
 	public static Entity getGlobalFavoritesEntity()
 	{
 		return new Entity("Favorites", globalFavorites);
 	}
-	
+
 	public static String getUserFavoritesStr(String userId)
 	{
 		return userFavoritePrefix+userId;
 	}
-	
+
 	public static Key getUserFavoritesKey(String userId)
 	{
 		return KeyFactory.createKey("Favorites", getUserFavoritesStr(userId));
 	}
-	
+
 	public static Key getGlobalSummonerKey(String summonerName, String region)
 	{
 		Key globalFavoritesKey = getGlobalFavoritesKey();
 		return KeyFactory.createKey(globalFavoritesKey, "summoner", getGlobalSummonerStr(summonerName, region));
 	}
-	
+
 	public static Key getUserSummonerKey(String userId, String summonerName, String regionName)
 	{
 		return KeyFactory.createKey(getUserFavoritesKey(userId), "summoner_ref", getUserSummonerStr(userId, summonerName, regionName));
 	}
-	
-	
+
+
 	public static String getGlobalSummonerStr(String summonerName, String region)
 	{
 		return summonerName+region;    // key is summonername+region
 	}
-	
+
 	public static String getUserSummonerStr(String userId, String summonerName, String region)
 	{
 		return userId+summonerName+region;    // key is userid+summonername+region
 	}
-	
+
 	public static String getGameIDName(long gameId, String globalSummonerKeyStr)
 	{
 		return gameId+"_"+globalSummonerKeyStr;
 	}
-	
+
 	public static void printLoginPage(PrintWriter out, UserService userService)
 	{
 		String navBar = "<nav style='text-align: center;'>Welcome! <a href=\""+ userService.createLoginURL("/") +
@@ -413,7 +424,7 @@ public class HelperFunctions {
 		out.println("</html>");
 		return;
 	}
-	
+
 	public static void printLolHeader(PrintWriter out, String title)
 	{
 		out.println("<head>");
@@ -423,7 +434,7 @@ public class HelperFunctions {
 		out.println("<link rel='stylesheet' href='/css/code.css'>");
 		out.println("</head>");
 	}
-	
+
 	public static void printLolLogo(PrintWriter out)
 	{
 		out.println("<div id='logo'>");
@@ -431,7 +442,7 @@ public class HelperFunctions {
 		out.println("<span>ECE1779 LOL Tracker</span>");
 		out.println("</div>");
 	}
-	
+
 	public static void printFavoriteSummunerTitle(PrintWriter out, String summonerName, String region)
 	{
 		String formId = "form_"+summonerName+region;
@@ -443,7 +454,7 @@ public class HelperFunctions {
 		out.println("</form></td>");
 		out.println("<td>" + region.toUpperCase() + "</td>");
 	}
-	
+
 	public static void printGameStats(PrintWriter out, StoredGame game)
 	{
 		if (game == null)
@@ -462,14 +473,14 @@ public class HelperFunctions {
 			DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 			String dateFormatted = formatter.format(game.getGameDate());
 			out.println("<td>" + dateFormatted + "</td>");
-			
+
 			out.println("<td>" + "<img src=\"" +game.getChampionName()+"_Square_0.png\" height=50 width=50> " + game.getChampionName() +"</td>");
-			
+
 			if (game.isWin())
 				out.println("<td>Win</td>");
 			else
 				out.println("<td>Loss</td>");
-	
+
 			int gameLengthInMinutes = (int)game.getGameLength() / 60;
 			out.println("<td>" + gameLengthInMinutes +"</td>");
 			out.println("<td>" + game.getGoldEarned() +"</td>");
@@ -478,26 +489,26 @@ public class HelperFunctions {
 			out.println("<td>" + game.getDeaths() +"</td>");
 		}
 	}
-	
+
 	public static void printRiotGameStats(PrintWriter out, Game game)
 	{
 		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 		String dateFormatted = formatter.format(game.getPlayedDate());
 		out.println("<td>" + dateFormatted +"</td>");
-		
+
 		Champion champion = game.getChampion();
-	
+
 		try {
 			out.println("<td>" + "<img src=\"" +champion.getName()+"_Square_0.png\" height=50 width=50> " + champion.getName() +"</td>");
 		} catch (RiotApiException e) {
 			out.println("<td> N/A </td>"); //TODO: should we default to a champion ?
 		}
-	
+
 		if (game.isWin())
 			out.println("<td>Win</td>");
 		else
 			out.println("<td>Loss</td>");
-	
+
 		int gameLengthInMinutes = game.getLength() / 60;
 		out.println("<td>" + gameLengthInMinutes +"</td>");
 		out.println("<td>" + game.getGoldEarned() +"</td>");
@@ -505,8 +516,8 @@ public class HelperFunctions {
 		out.println("<td>" + game.getAssists() +"</td>");
 		out.println("<td>" + game.getDeaths() +"</td>");
 	}
-	
-	
+
+
 	public static void printUserPageStats(PrintWriter out, RiotApi client, DatastoreService ds, MemcacheService mc, String summonerName, String region)
 	{
 		getLatestSummonerMatchHistory(client, ds, mc, summonerName, getRegionFromString(region));
@@ -518,7 +529,7 @@ public class HelperFunctions {
 	{
 		out.println("<div id='menu'>");
 		out.println("<a class='home-link' href='/'>Home</a>");
-		
+
 		if (user != null) {
 			out.println("<p>" + user.getNickname() + "</p>");
 			out.println("<a href=\"" + userService.createLogoutURL("/") + "\">Sign Out</a>");
@@ -526,7 +537,7 @@ public class HelperFunctions {
 
 		out.println("</div>");
 	}
-	
+
 	public static Region getRegionFromString(String region)
 	{
 		Region REGION;
@@ -545,7 +556,7 @@ public class HelperFunctions {
 		}
 		return REGION;
 	}
-	
+
 	public static String getStringFromRegion(String region)
 	{
 		String REGION;
@@ -564,5 +575,5 @@ public class HelperFunctions {
 		}
 		return REGION;
 	}
-			
+
 }
