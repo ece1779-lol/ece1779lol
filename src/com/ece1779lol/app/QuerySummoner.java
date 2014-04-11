@@ -114,16 +114,16 @@ public class QuerySummoner extends HttpServlet {
 			if (isFavorite)
 			{
 				out.println("  <form id='removeFavorite' name=remove_favorite action='/removeSummoner' method='post'>");
-				out.println("  <input type='hidden' name='summonerName' value="+summoner.getName()+">");
-				out.println("  <input type='hidden' name='region' value="+region.getValue()+">");
+				out.println("  <input type='hidden' name='summonerName' value='"+summoner.getName()+"'>");
+				out.println("  <input type='hidden' name='region' value='"+region.getValue()+"'>");
 				out.println("  <input class='actionbutton' type='submit' value='UnFollow'>");
 				out.println("  </form>");
 			}
 			else
 			{
 				out.println("  <form id='addFavorite' name=add_favorite action='/addSummoner' method='post'>");
-				out.println("  <input type='hidden' name='summonerName' value="+summoner.getName()+">");
-				out.println("  <input type='hidden' name='region' value="+region.getValue()+">");
+				out.println("  <input type='hidden' name='summonerName' value='"+summoner.getName()+"'>");
+				out.println("  <input type='hidden' name='region' value='"+region.getValue()+"'>");
 				out.println("  <input class='actionbutton' type='submit' value='Follow'>");
 				out.println("  </form>");
 			}

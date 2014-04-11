@@ -126,8 +126,8 @@ public class UserPage extends HttpServlet {
 				HelperFunctions.printUserPageStats(out, client, ds, mc, summonerName, region);
 
 				out.println("  <td><form id='addFavorite' name=add_favorite action='/removeSummoner' method='post'>");
-				out.println("  <input type='hidden' name='favoritesKey' value="+KeyFactory.keyToString(favorite_keys.getKey())+">");
-				out.println("  <input type='hidden' name='summonerKey' value="+summoner_key+">");
+				out.println("  <input type='hidden' name='favoritesKey' value='"+KeyFactory.keyToString(favorite_keys.getKey())+"'>");
+				out.println("  <input type='hidden' name='summonerKey' value='"+summoner_key+"'>");
 				out.println("  <input class='actionbutton' style='width: inherit;' type='submit' value='Unfollow'>");
 				out.println("  </form></td>");
 				

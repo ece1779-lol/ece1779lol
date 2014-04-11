@@ -445,14 +445,14 @@ public class HelperFunctions {
 
 	public static void printFavoriteSummunerTitle(PrintWriter out, String summonerName, String region)
 	{
-		String formId = "form_"+summonerName+region;
+		String formId = "form_"+summonerName.replaceAll(" ", "_space_")+region;
 
-		out.println("<td><form name="+formId+" method='post' action='/querySummoner'>");
-		out.println("<input type='hidden' name='summonerName' value="+summonerName+">");
-		out.println("<input type='hidden' name='region' value="+getStringFromRegion(region)+" />");
+		out.println("<td><form name='"+formId+"' method='post' action='/querySummoner'>");
+		out.println("<input type='hidden' name='summonerName' value='"+summonerName+"'>");
+		out.println("<input type='hidden' name='region' value='"+region+"'>");
 		out.println("<a href='javascript:document."+formId+".submit()'><h4>"+summonerName+"</h4></a>");
 		out.println("</form></td>");
-		out.println("<td>" + region.toUpperCase() + "</td>");
+		out.println("<td>" + getStringFromRegion(region) + "</td>");
 	}
 
 	public static void printGameStats(PrintWriter out, StoredGame game)
