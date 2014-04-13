@@ -32,6 +32,8 @@ public class Initialization extends HttpServlet {
     	    
     	    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
     	    context.setAttribute("DataStore", ds);
+    	    
+    	    BackgroundWorker.startTimer(1000 * 2);
     		
 		}
 		catch (Exception ex) {
