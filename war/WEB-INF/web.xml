@@ -54,6 +54,15 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	</servlet-mapping>
 	
 	<servlet>
+		<servlet-name>UpdateSummoners</servlet-name>
+		<servlet-class>com.ece1779lol.app.UpdateSummoners</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>UpdateSummoners</servlet-name>
+		<url-pattern>/updateSummoners</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
 		<servlet-name>UserPage</servlet-name>
 		<servlet-class>com.ece1779lol.app.UserPage</servlet-class>
 	</servlet>
