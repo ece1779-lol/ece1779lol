@@ -26,14 +26,17 @@ public class Initialization extends HttpServlet {
     		RiotApi client = new RiotApi(apiKey, null, LimitPer10Sec, LimitPer10Min);
     		context.setAttribute("RiotClient", client);
     		
-    		MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
-    	    syncCache.setErrorHandler(ErrorHandlers.getConsistentLogAndContinue(Level.INFO));
-    	    context.setAttribute("MemCache", syncCache);
+    		MemcacheService mc = MemcacheServiceFactory.getMemcacheService();
+    		mc.setErrorHandler(ErrorHandlers.getConsistentLogAndContinue(Level.INFO));
+    	    context.setAttribute("MemCache", mc);
     	    
     	    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
     	    context.setAttribute("DataStore", ds);
     	    
-    	    BackgroundWorker.startTimer(1000 * 2);
+    	    BackgroundWorker.setRiotClient(client);
+    	    BackgroundWorker.setDatastoreService(ds);
+    	    BackgroundWorker.setMemcacheService(mc);
+    	    BackgroundWorker.startTimer(1000 * 20);
     		
 		}
 		catch (Exception ex) {
