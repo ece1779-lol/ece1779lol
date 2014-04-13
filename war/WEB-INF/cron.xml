@@ -3,6 +3,6 @@
   <cron>
     <url>/updateSummoners</url>
     <description>Update the global summoners database</description>
-    <schedule>every 1 minutes</schedule>
+    <schedule>every 60 minutes</schedule>
   </cron>
 </cronentries>

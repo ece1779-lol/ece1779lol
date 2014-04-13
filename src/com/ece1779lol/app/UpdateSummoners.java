@@ -30,8 +30,27 @@ public class UpdateSummoners extends HttpServlet {
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-	
-		BackgroundWorker.test_counter++;
+		
+		DatastoreService ds = (DatastoreService)getServletContext().getAttribute("DataStore");
+		MemcacheService mc = (MemcacheService)getServletContext().getAttribute("MemCache");
+		RiotApi client = (RiotApi)getServletContext().getAttribute("RiotClient");
+		
+		if (client==null || ds==null || mc==null)
+		{
+			return;
+		}
+		
+		log.info("start scraping...");
+		Query q = new Query("summoner");
+		PreparedQuery pq = ds.prepare(q);
+		for (Entity summoner : pq.asIterable(FetchOptions.Builder.withLimit(100).offset(0))) {
+			String summonerName = (String)summoner.getProperty("summoner_name");
+			String region = (String)summoner.getProperty("region");
+			log.info("scraping latest history for "+summonerName+" "+region);
+			HelperFunctions.getLatestSummonerMatchHistory(client, ds, mc, summonerName, HelperFunctions.getRegionFromString(region));
+		}
+
+		log.info("done scraping...");
 	}
 }
 

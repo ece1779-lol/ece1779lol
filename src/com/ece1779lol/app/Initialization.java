@@ -32,12 +32,7 @@ public class Initialization extends HttpServlet {
     	    
     	    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
     	    context.setAttribute("DataStore", ds);
-    	    
-    	    BackgroundWorker.setRiotClient(client);
-    	    BackgroundWorker.setDatastoreService(ds);
-    	    BackgroundWorker.setMemcacheService(mc);
-    	    //BackgroundWorker.startTimer(1000 * 20);
-    		
+
 		}
 		catch (Exception ex) {
 		    getServletContext().log("SQLGatewayPool Error: " + ex.getMessage());
