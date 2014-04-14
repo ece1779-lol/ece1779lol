@@ -16,6 +16,11 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 		</init-param>
 		
 		<init-param>
+			<param-name>RiotKey2</param-name>
+			<param-value>mykey2</param-value>
+		</init-param>
+		
+		<init-param>
 			<param-name>LimitPer10Sec</param-name>
 			<param-value>10</param-value>
 		</init-param>

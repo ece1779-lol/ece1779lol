@@ -142,7 +142,7 @@ public class QuerySummoner extends HttpServlet {
 
 			if (isFavorite)
 			{
-				//HelperFunctions.getLatestSummonerMatchHistory(client, ds, mc, summonerName, region);
+				HelperFunctions.getLatestSummonerMatchHistory(client, ds, mc, summonerName, region);
 				List<StoredGame> gameHistory = HelperFunctions.getSummonerMatchHistory(ds, summonerName, region.getValue());
 				for (StoredGame game : gameHistory)
 				{

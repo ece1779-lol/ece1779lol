@@ -36,9 +36,9 @@ public class UpdateSummoners extends HttpServlet {
 		
 		DatastoreService ds = (DatastoreService)getServletContext().getAttribute("DataStore");
 		MemcacheService mc = (MemcacheService)getServletContext().getAttribute("MemCache");
-		RiotApi client = (RiotApi)getServletContext().getAttribute("RiotClient");
+		RiotApi client2 = (RiotApi)getServletContext().getAttribute("RiotClient2");
 		
-		if (client==null || ds==null || mc==null)
+		if (client2==null || ds==null || mc==null)
 		{
 			return;
 		}
@@ -56,7 +56,7 @@ public class UpdateSummoners extends HttpServlet {
 			String region = (String)summoner.getProperty("region");
 			log.info("scraping latest history for "+summonerName+" "+region);
 			logs.add("scraping latest history for "+summonerName+" "+region);
-			HelperFunctions.getLatestSummonerMatchHistory(client, ds, mc, summonerName, HelperFunctions.getRegionFromString(region));
+			HelperFunctions.getLatestSummonerMatchHistory(client2, ds, mc, summonerName, HelperFunctions.getRegionFromString(region));
 		}
 
 		logs.add("done scraping...");

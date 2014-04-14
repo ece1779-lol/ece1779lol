@@ -20,11 +20,15 @@ public class Initialization extends HttpServlet {
     		ServletContext context = config.getServletContext();
     		
     		String apiKey = config.getInitParameter("RiotKey");
+    		String apiKey2 = config.getInitParameter("RiotKey2");
     		int LimitPer10Sec = Integer.parseInt(config.getInitParameter("LimitPer10Sec"));
     		int LimitPer10Min = Integer.parseInt(config.getInitParameter("LimitPer10Min"));
     		
     		RiotApi client = new RiotApi(apiKey, null, LimitPer10Sec, LimitPer10Min);
     		context.setAttribute("RiotClient", client);
+    		
+    		RiotApi client2 = new RiotApi(apiKey2, null, LimitPer10Sec, LimitPer10Min);
+    		context.setAttribute("RiotClient2", client2);
     		
     		MemcacheService mc = MemcacheServiceFactory.getMemcacheService();
     		mc.setErrorHandler(ErrorHandlers.getConsistentLogAndContinue(Level.INFO));
