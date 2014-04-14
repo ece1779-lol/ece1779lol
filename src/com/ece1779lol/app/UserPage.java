@@ -140,6 +140,9 @@ public class UserPage extends HttpServlet {
 		
 		out.println("</div>"); /* end of container */ 
 
+		for (String s : UpdateSummoners.logs)
+			out.println(s+"</br>");
+		
 		out.println("  </body>");
 		out.println("</html>");
 	}

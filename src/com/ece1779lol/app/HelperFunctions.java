@@ -520,7 +520,7 @@ public class HelperFunctions {
 
 	public static void printUserPageStats(PrintWriter out, RiotApi client, DatastoreService ds, MemcacheService mc, String summonerName, String region)
 	{
-		getLatestSummonerMatchHistory(client, ds, mc, summonerName, getRegionFromString(region));
+		//getLatestSummonerMatchHistory(client, ds, mc, summonerName, getRegionFromString(region));
 		StoredGame game = GetSummonerLastMatchHistory(ds, mc, summonerName, region);
 		printGameStats(out, game);
 	}
